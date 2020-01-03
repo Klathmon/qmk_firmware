@@ -15,7 +15,7 @@ uint8_t screen_max_count = 0;  // Number of info screens we can scroll through (
 uint8_t screen_show_index = 0; // Current index of the info screen we are displaying
 uint8_t screen_data_buffer[SERIAL_SCREEN_BUFFER_LENGTH - 1] =  {0}; // Buffer used to store the screen data sent by connected node script
 int screen_data_index = 0; // Current index into the screen_data_buffer that we should write to
-char hid_status_str[24] = {};
+char hid_status_str[21] = {};
 
 const char *read_logo(void);
 

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "lily58.h"
 
-char layer_state_str[24] = {};
+char layer_state_str[21] = {};
 
 const char *read_layer_state(void) {
   switch (biton32(layer_state)) {

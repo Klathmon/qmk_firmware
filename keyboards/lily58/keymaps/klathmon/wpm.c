@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "lily58.h"
 
-char wpm_string[24] = {};
+char wpm_string[21] = {};
 int time_combo_started = 0;
 int number_keys_this_combo = 0;
 int time_previous_key_pressed = 0;

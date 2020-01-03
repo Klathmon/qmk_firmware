@@ -10,7 +10,7 @@
 #define L_ADJUST_TRI 14
 
 bool mac_mode = false;
-char mac_mode_string[24] = {};
+char mac_mode_string[21] = {};
 
 void toggle_mac_mode (void) {
   mac_mode = !mac_mode;
