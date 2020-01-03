@@ -13,11 +13,14 @@
 
 uint8_t volatile serial_slave_buffer[SERIAL_SLAVE_BUFFER_LENGTH] = {0};
 uint8_t volatile serial_master_buffer[SERIAL_MASTER_BUFFER_LENGTH] = {0};
+uint8_t volatile serial_slave_screen_buffer[SERIAL_SCREEN_BUFFER_LENGTH] = {0};
 uint8_t volatile status_com = 0;
 uint8_t volatile status1 = 0;
+uint8_t volatile status2 = 0;
 uint8_t slave_buffer_change_count = 0;
 uint8_t s_change_old = 0xff;
 uint8_t s_change_new = 0xff;
+bool volatile hid_screen_change = false;
 
 SSTD_t transactions[] = {
 #define GET_SLAVE_STATUS 0
@@ -37,6 +40,12 @@ SSTD_t transactions[] = {
     { (uint8_t *)&status1,
       0, NULL,
       sizeof(serial_slave_buffer), (uint8_t *)serial_slave_buffer
+    },
+#define PUT_SLAVE_SCREEN 3
+    /* master is transfering screen data to slave */
+    { (uint8_t *)&status2,
+      sizeof(serial_slave_screen_buffer), (uint8_t *)serial_slave_screen_buffer,
+      0, NULL
     }
 };
 
@@ -71,6 +80,11 @@ int serial_update_buffers(int master_update)
     } else {
         // serial_slave_buffer dosen't change
         smatstatus = TRANSACTION_END; // dummy status
+    }
+
+    if (hid_screen_change) {
+       soft_serial_transaction(PUT_SLAVE_SCREEN);
+       hid_screen_change = false;
     }
 
     if( !master_update && !need_retry) {

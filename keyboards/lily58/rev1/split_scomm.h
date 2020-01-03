@@ -10,10 +10,13 @@
 // Buffers for master - slave communication
 #define SERIAL_SLAVE_BUFFER_LENGTH MATRIX_ROWS/2
 #define SERIAL_MASTER_BUFFER_LENGTH MATRIX_ROWS/2
+#define SERIAL_SCREEN_BUFFER_LENGTH (/*SSD1306_MatrixCols*/21 * /*SSD1306_MatrixRows*/4 + /*Extra IsEnabledBit*/1)
 
 extern volatile uint8_t serial_slave_buffer[SERIAL_SLAVE_BUFFER_LENGTH];
 extern volatile uint8_t serial_master_buffer[SERIAL_MASTER_BUFFER_LENGTH];
+extern volatile uint8_t serial_slave_screen_buffer[SERIAL_SCREEN_BUFFER_LENGTH];
 extern uint8_t slave_buffer_change_count;
+extern volatile bool hid_screen_change; // Flag marking if the screen data is dirty and needs transferring to slave
 
 void serial_master_init(void);
 void serial_slave_init(void);
