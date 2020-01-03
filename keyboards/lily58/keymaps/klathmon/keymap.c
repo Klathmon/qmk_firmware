@@ -73,12 +73,20 @@ void matrix_init_user(void) {
 
 // When add source files to SRC in rules.mk, you can use functions.
 const char *read_layer_state(void);
-const char *read_logo(void);
+
 void set_wpm(void);
 const char *read_wpm_string(void);
+
 void toggle_mac_mode (void);
 bool get_mac_mode (void);
 const char *read_mac_mode_state(void);
+
+bool is_hid_connected(void);
+const char *read_hid_status(void);
+void increase_screen_num(void);
+void decrease_screen_num(void);
+void write_slave_info_screen(struct CharacterMatrix *matrix);
+
 
 void matrix_scan_user(void) {
    iota_gfx_task();
@@ -89,9 +97,11 @@ void matrix_render_user(struct CharacterMatrix *matrix) {
     // If you want to change the display of OLED, you need to change here
     matrix_write_ln(matrix, read_mac_mode_state());
     matrix_write_ln(matrix, read_layer_state());
+    matrix_write_ln(matrix, read_hid_status());
     matrix_write_ln(matrix, read_wpm_string());
   } else {
-    matrix_write(matrix, read_logo());
+    // matrix_write(matrix, read_logo());
+    write_slave_info_screen(matrix);
   }
 }
 
@@ -176,11 +186,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void encoder_update_user(uint8_t index, bool counterclockwise) {
   switch (biton32(layer_state)) {
     case _MOVEMENT_LAYER: {
-      // On the RGB layer we control the screen display with the encoder
       if (counterclockwise) {
-        // next_screen();
+        decrease_screen_num();
       } else {
-        // previous_screen();
+        increase_screen_num();
       }
       break;
     }

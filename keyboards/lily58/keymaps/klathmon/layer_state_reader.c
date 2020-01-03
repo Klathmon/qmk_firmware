@@ -3,17 +3,21 @@
 #include <stdio.h>
 #include "lily58.h"
 
-char layer_state_str[24];
+#define L_BASE 0
+#define L_MOVEMENT 2
+#define L_NUMPAD 4
+
+char layer_state_str[24] = {};
 
 const char *read_layer_state(void) {
   switch (layer_state) {
-    case 0:
+    case L_BASE:
       snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Main");
       break;
-    case 1:
-      snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Movement & F-keys");
+    case L_MOVEMENT:
+      snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Mvmt & F-keys");
       break;
-    case 2:
+    case L_NUMPAD:
       snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Numpad");
       break;
     default:

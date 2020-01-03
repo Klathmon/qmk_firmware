@@ -32,6 +32,7 @@ SRC +=  \
 				./mac_mode.c \
 				./layer_state_reader.c \
 				./wpm.c \
+				./hid_display.c \
 				# ./lib/timelogger.c \
 				# ./lib/rgb_state_reader.c \
 				# ./lib/keylogger.c \
