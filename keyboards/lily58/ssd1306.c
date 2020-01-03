@@ -26,7 +26,7 @@ extern const unsigned char font[] PROGMEM;
 //#define BatteryUpdateInterval 10000 /* milliseconds */
 
 // 'last_flush' is declared as uint16_t,
-// so this must be less than 65535 
+// so this must be less than 65535
 #define ScreenOffInterval 60000 /* milliseconds */
 #if DEBUG_TO_SCREEN
 static uint8_t displaying;
@@ -200,7 +200,7 @@ void matrix_write_char_inner(struct CharacterMatrix *matrix, uint8_t c) {
   *matrix->cursor = c;
   ++matrix->cursor;
 
-  if (matrix->cursor - &matrix->display[0][0] == sizeof(matrix->display)) {
+  if (matrix->cursor - &matrix->display[0][0] == sizeof(matrix->display) + 1) {
     // We went off the end; scroll the display upwards by one line
     memmove(&matrix->display[0], &matrix->display[1],
             MatrixCols * (MatrixRows - 1));
