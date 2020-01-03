@@ -171,3 +171,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   }
   return true;
 }
+
+// Rotary Encoder
+void encoder_update_user(uint8_t index, bool counterclockwise) {
+  switch (biton32(layer_state)) {
+    case _MOVEMENT_LAYER: {
+      // On the RGB layer we control the screen display with the encoder
+      if (counterclockwise) {
+        // next_screen();
+      } else {
+        // previous_screen();
+      }
+      break;
+    }
+
+    default: {
+      if (counterclockwise) {
+        tap_code(KC_VOLD);
+      } else {
+        tap_code(KC_VOLU);
+      }
+      break;
+    }
+  }
+}
