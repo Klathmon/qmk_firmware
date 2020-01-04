@@ -205,13 +205,41 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (record->event.pressed) {
         if (get_mac_mode()) {
           // do something eventually...
+          SEND_STRING(SS_LGUI(" "));
+          _delay_ms(400);
+          SEND_STRING("terminal.app"SS_TAP(X_ENT));
+          _delay_ms(400);
+          SEND_STRING(SS_LGUI("t"));
+          _delay_ms(200);
+          SEND_STRING("npx @klathmon/qmk-hid-display"SS_TAP(X_ENT));
         } else {
           SEND_STRING(SS_LGUI("r"));
-          SEND_STRING(SS_LGUI("r"));
+          _delay_ms(400);
           SEND_STRING("cmd /C npx @klathmon/qmk-hid-display"SS_TAP(X_ENT)SS_TAP(X_ENT));
         }
       }
       return false;
+      break;
+    // keycode rewrites
+    case KC_LCTL:
+      if (get_mac_mode()) {
+        if (record->event.pressed) {
+          register_code(KC_LGUI);
+        } else {
+          unregister_code(KC_LGUI);
+        }
+        return false;
+      }
+      break;
+    case KC_LGUI:
+      if (get_mac_mode()) {
+        if (record->event.pressed) {
+          register_code(KC_LCTL);
+        } else {
+          unregister_code(KC_LCTL);
+        }
+        return false;
+      }
       break;
   }
   return true;
