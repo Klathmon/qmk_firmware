@@ -29,6 +29,7 @@ enum custom_keycodes {
   LCK_SCRN, // lock screen
   L_O_W, // left one word
   R_O_W, // right one word
+  LNCH_APP, // launch the companion app
 };
 
 
@@ -44,7 +45,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRNS,    KC_F1,    KC_F2,    KC_F3,    KC_F4,  KC_TRNS,                      KC_TRNS,  KC_HOME,  KC_TRNS,   KC_END,  KC_MINS,   KC_EQL,
       KC_TRNS,    KC_F5,    KC_F6,    KC_F7,    KC_F8,  KC_TRNS,                      KC_TRNS,    L_O_W,    KC_UP,    R_O_W,  KC_LBRC,  KC_RBRC,
       KC_TRNS,    KC_F9,   KC_F10,   KC_F11,   KC_F12,  KC_TRNS,                      KC_PGUP,  KC_LEFT,  KC_DOWN,  KC_RGHT,  KC_LCBR,  KC_RCBR,
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_PGDN,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_TRNS,  KC_TRNS,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  LNCH_APP, KC_PGDN,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_TRNS,  KC_TRNS,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
   [_NUMPAD_LAYER] = LAYOUT(
@@ -161,19 +162,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case L_O_W:
       if (record->event.pressed) {
         if (get_mac_mode()) {
-          tap_code16(LALT(KC_LEFT));
+          register_code16(LALT(KC_LEFT));
         } else {
-          tap_code16(LCTL(KC_LEFT));
+          register_code16(LCTL(KC_LEFT));
+        }
+      } else {
+        if (get_mac_mode()) {
+          unregister_code16(LALT(KC_LEFT));
+        } else {
+          unregister_code16(LCTL(KC_LEFT));
         }
       }
       return false;
       break;
     case R_O_W:
-      if (record->event.pressed) {
-        if (get_mac_mode()) {
-          tap_code16(LALT(KC_RIGHT));
+    if (record->event.pressed) {
+      if (get_mac_mode()) {
+          register_code16(LALT(KC_RIGHT));
         } else {
-          tap_code16(LCTL(KC_RIGHT));
+          register_code16(LCTL(KC_RIGHT));
+        }
+      } else {
+        if (get_mac_mode()) {
+          unregister_code16(LALT(KC_RIGHT));
+        } else {
+          unregister_code16(LCTL(KC_RIGHT));
         }
       }
       return false;
@@ -186,6 +199,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           tap_code16(LGUI(KC_L));
         }
       }
+      return false;
+      break;
+    case LNCH_APP:
+      if (record->event.pressed) {
+        if (get_mac_mode()) {
+          // do something eventually...
+        } else {
+          SEND_STRING(SS_LGUI("r"));
+          SEND_STRING(SS_LGUI("r"));
+          SEND_STRING("cmd /C npx @klathmon/qmk-hid-display"SS_TAP(X_ENT)SS_TAP(X_ENT));
+        }
+      }
+      return false;
+      break;
   }
   return true;
 }
