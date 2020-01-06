@@ -20,11 +20,13 @@ extern uint8_t is_master;
 #define _MAIN_LAYER 0
 #define _MOVEMENT_LAYER 1
 #define _NUMPAD_LAYER 2
+#define _HYPER_LAYER 3
 
 enum custom_keycodes {
   MAIN_L = SAFE_RANGE,
   MVMT_L,
   NPD_L,
+  HYPR_L, // special layer for advanced and crazy things
   MAC_MODE, // toggle between MacOS and Windows compat
   LCK_SCRN, // lock screen
   L_O_W, // left one word
@@ -39,13 +41,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,                         KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_BSLS,
       KC_LGUI,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,                         KC_H,     KC_J,     KC_K,     KC_L,  KC_SCLN,     KC_QUOT,
       KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,   KC_MUTE,  LCK_SCRN,   KC_N,     KC_M,  KC_COMM,   KC_DOT,  KC_SLSH,      KC_ENT,
-                                    KC_LALT,  KC_ESC,  KC_LCTL,  KC_SPC,   KC_DEL,  MVMT_L,    NPD_L,    MAC_MODE
+                                    KC_LALT,  KC_ESC,  KC_LCTL,  KC_SPC,   KC_DEL,  MVMT_L,    NPD_L,    HYPR_L
   ),
   [_MOVEMENT_LAYER] = LAYOUT(
       KC_TRNS,    KC_F1,    KC_F2,    KC_F3,    KC_F4,  KC_TRNS,                      KC_TRNS,  KC_HOME,  KC_TRNS,   KC_END,  KC_MINS,   KC_EQL,
       KC_TRNS,    KC_F5,    KC_F6,    KC_F7,    KC_F8,  KC_TRNS,                      KC_TRNS,    L_O_W,    KC_UP,    R_O_W,  KC_LBRC,  KC_RBRC,
       KC_TRNS,    KC_F9,   KC_F10,   KC_F11,   KC_F12,  KC_TRNS,                      KC_PGUP,  KC_LEFT,  KC_DOWN,  KC_RGHT,  KC_LCBR,  KC_RCBR,
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  LNCH_APP, KC_PGDN,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_TRNS,  KC_TRNS,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS , KC_PGDN,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_TRNS,  KC_TRNS,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
   [_NUMPAD_LAYER] = LAYOUT(
@@ -53,6 +55,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_PSLS,  KC_P4,  KC_P5,  KC_P6,  KC_PPLS,  KC_NO,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_NO,    KC_P1,  KC_P2,  KC_P3,  KC_PENT,  KC_NO,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_NO,    KC_P0,  KC_P0,KC_PDOT,  KC_PENT,  KC_TRNS,
+                                    KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
+  ),
+  [_HYPER_LAYER] = LAYOUT(
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  LNCH_APP,  MAC_MODE,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
 };
@@ -128,6 +137,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
   }
 
+  uint8_t mods = get_mods();
+
   switch (keycode) {
     // layers first
     case MAIN_L:
@@ -149,6 +160,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         layer_on(_NUMPAD_LAYER);
       } else {
         layer_off(_NUMPAD_LAYER);
+      }
+      return false;
+      break;
+    case HYPR_L:
+      if (record->event.pressed) {
+        layer_on(_HYPER_LAYER);
+      } else {
+        layer_off(_HYPER_LAYER);
       }
       return false;
       break;
@@ -241,6 +260,36 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
       }
       break;
+    case KC_DOWN:
+      if (get_mac_mode() && mods & MOD_MASK_GUI) {
+        if (record->event.pressed) {
+          register_code16(LCTL(LGUI(KC_DOWN)));
+        } else {
+          unregister_code16(LCTL(LGUI(KC_DOWN)));
+        }
+        return false;
+      }
+      break;
+    case KC_UP:
+      if (get_mac_mode() && mods & MOD_MASK_GUI) {
+        if (record->event.pressed) {
+          register_code16(LCTL(LGUI(KC_UP)));
+        } else {
+          unregister_code16(LCTL(LGUI(KC_UP)));
+        }
+        return false;
+      }
+      break;
+    case KC_F12: // open devtools on macos
+      if (get_mac_mode()) {
+        if (record->event.pressed) {
+          register_code16(LALT(LGUI(KC_J)));
+        } else {
+          unregister_code16(LALT(LGUI(KC_J)));
+        }
+        return false;
+      }
+      break;
   }
   return true;
 }
@@ -248,7 +297,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // Rotary Encoder
 void encoder_update_user(uint8_t index, bool counterclockwise) {
   switch (biton32(layer_state)) {
-    case _MOVEMENT_LAYER: {
+    case _HYPER_LAYER: {
       if (counterclockwise) {
         decrease_screen_num();
       } else {

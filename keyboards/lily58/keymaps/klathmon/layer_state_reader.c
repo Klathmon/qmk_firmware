@@ -16,6 +16,9 @@ const char *read_layer_state(void) {
     case 2:
       snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Numpad");
       break;
+    case 3:
+      snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Hyper");
+      break;
     default:
       snprintf(layer_state_str, sizeof(layer_state_str), "Layer: %d", biton32(layer_state));
   }
