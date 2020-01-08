@@ -227,9 +227,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           _delay_ms(400);
           SEND_STRING("terminal.app"SS_TAP(X_ENT));
           _delay_ms(400);
-          SEND_STRING(SS_LGUI("t"));
+          SEND_STRING(SS_LGUI("n")); // new window
           _delay_ms(200);
           SEND_STRING("npx @klathmon/qmk-hid-display"SS_TAP(X_ENT));
+          _delay_ms(200);
+          SEND_STRING(SS_LGUI("m")); // minimize new window
         } else {
           SEND_STRING(SS_LGUI("r"));
           _delay_ms(400);
