@@ -1,6 +1,5 @@
-// This is the canonical layout file for the Quantum project. If you want to add another keyboard,
-// this is the style you want to emulate.
 
+#pragma message "You may need to add LAYOUT_planck_grid to your keymap layers - see default for an example"
 #include "planck.h"
 #include "action_layer.h"
 #ifdef AUDIO_ENABLE
@@ -49,10 +48,6 @@ extern keymap_config_t keymap_config;
 #define MACSLEEP LSFT(LCTL(KC_POWER))
 #define WINSLEEP KC_SLEP
 
-// Fillers to make layering more clear
-#define _______ KC_TRNS
-#define XXXXXXX KC_NO
-
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_QWERTY] = {
@@ -97,13 +92,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   {_______, _______, _______, _______, _______, RESET,   RESET,   _______, _______, _______, _______, _______}
 },
 [_MAC] = { /* Mac */
-  {CYCLWIN,MACSLEEP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_DELT},
+  {CYCLWIN,MACSLEEP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_DEL },
   {_______, MICMUTE, KC_MUTE, KC_VOLD, KC_VOLU, MACPRNT,MACPRNT2, KC_F5,   KC_F6,   KC_F7,   KC_F8,   XXXXXXX},
   {_______, BL_STEP, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX, KC_F9,   KC_F10,  KC_F11,  KC_F12,  XXXXXXX},
   {_______, _______, _______, _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_HOME, KC_PGDOWN,KC_PGUP,KC_END }
 },
 [_WIN] = { /* Windows */
-  {CYCLWIN,WINSLEEP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_DELT},
+  {CYCLWIN,WINSLEEP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_DEL },
   {_______, MICMUTE, KC_MUTE, KC_VOLD, KC_VOLU, WINPRNT,WINPRNT2, KC_F5,   KC_F6,   KC_F7,   KC_F8,   XXXXXXX},
   {_______, BL_STEP, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX, KC_F9,   KC_F10,  KC_F11,  KC_F12,  XXXXXXX},
   {_______, _______, _______, _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_HOME, KC_PGDOWN,KC_PGUP,KC_END }
@@ -118,9 +113,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 int currentOs = _MAC;
-const uint16_t PROGMEM fn_actions[] = {
-
-};
 
 #ifdef AUDIO_ENABLE
 
@@ -143,7 +135,7 @@ float goodbye[][2] = SONG(GOODBYE_SOUND);
 #endif
 
 
-void persistant_default_layer_set(uint16_t default_layer) {
+void persistent_default_layer_set(uint16_t default_layer) {
   eeconfig_update_default_layer(default_layer);
   default_layer_set(default_layer);
 }
@@ -154,25 +146,25 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
         case _QWERTY:
           if (record->event.pressed) {
             #ifdef AUDIO_ENABLE
-              PLAY_NOTE_ARRAY(tone_qwerty, false, 0);
+              PLAY_SONG(tone_qwerty);
             #endif
-            persistant_default_layer_set(1UL<<_QWERTY);
+            persistent_default_layer_set(1UL<<_QWERTY);
           }
           break;
         case _COLEMAK:
           if (record->event.pressed) {
             #ifdef AUDIO_ENABLE
-              PLAY_NOTE_ARRAY(tone_colemak, false, 0);
+              PLAY_SONG(tone_colemak);
             #endif
-            persistant_default_layer_set(1UL<<_COLEMAK);
+            persistent_default_layer_set(1UL<<_COLEMAK);
           }
           break;
         case _DVORAK:
           if (record->event.pressed) {
             #ifdef AUDIO_ENABLE
-              PLAY_NOTE_ARRAY(tone_dvorak, false, 0);
+              PLAY_SONG(tone_dvorak);
             #endif
-            persistant_default_layer_set(1UL<<_DVORAK);
+            persistent_default_layer_set(1UL<<_DVORAK);
           }
           break;
         case _LOWER:
@@ -211,7 +203,7 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
             unregister_code(KC_RCTL);
             unregister_code(KC_RALT);
             unregister_code(KC_RGUI);
-          } 
+          }
         break;
         case _OS:
           if (record->event.pressed) {
@@ -229,7 +221,7 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
             layer_off(currentOs);
             currentOs = id;
           }
-        break;        
+        break;
       }
     return MACRO_NONE;
 };
@@ -237,14 +229,14 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
 void matrix_init_user(void) {
   #ifdef AUDIO_ENABLE
     _delay_ms(20); // stops the tick
-    PLAY_NOTE_ARRAY(tone_startup, false, 0);
+    PLAY_SONG(tone_startup);
   #endif
 }
 
 #ifdef AUDIO_ENABLE
 void play_goodbye_tone()
 {
-  PLAY_NOTE_ARRAY(goodbye, false, 0);
+  PLAY_SONG(goodbye);
   _delay_ms(150);
 }
 

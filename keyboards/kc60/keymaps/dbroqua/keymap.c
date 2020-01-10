@@ -1,7 +1,5 @@
-// This is the canonical layout file for the Quantum project. If you want to add another keyboard,
-// this is the style you want to emulate.
 
-#include "kc60.h"
+#include QMK_KEYBOARD_H
 
 #define _QWERTY 0
 #define _FNCAPS 1
@@ -9,19 +7,6 @@
 
 // Fillers to make layering more clear
 #define ______ KC_TRNS
-#define XXXXXXX KC_NO
-
-// Func macro definitions.
-#define S_LED   FUNC(0)
-#define S_LEDI  FUNC(1)
-#define S_LEDD  FUNC(2)
-
-// Enable these functions using FUNC(n) macro.
-const uint16_t PROGMEM fn_actions[] = {
-    [0] = ACTION_BACKLIGHT_TOGGLE(),
-	[1] = ACTION_BACKLIGHT_INCREASE(),
-	[2] = ACTION_BACKLIGHT_DECREASE()
- };
 
 /*
  * |     |     |
@@ -34,9 +19,9 @@ const uint16_t PROGMEM fn_actions[] = {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Qwerty
  * ,-----------------------------------------------------------------------------------------.
- * | Esc |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  0  |  -  |  =  |  `  | Bksp|
+ * | Esc |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  0  |  -  |  =  |  \  |  `  |
  * |-----------------------------------------------------------------------------------------+
- * | Tab    |  Q  |  W  |  E  |  R  |  T  |  Y  |  U  |  I  |  O  |  P  |  [  |  ]  |   \    |
+ * | Tab    |  Q  |  W  |  E  |  R  |  T  |  Y  |  U  |  I  |  O  |  P  |  [  |  ]  |  Bksp  |
  * |-----------------------------------------------------------------------------------------+
  * | Caps/FN1|  A  |  S  |  D  |  F  |  G  |  H  |  J  |  K  |  L  |  ;  |  '  |    Enter    |
  * |-----------------------------------------------------------------------------------------+
@@ -45,12 +30,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * | Ctrl  | Gui   | Alt   |               Space             | AltGr | Left  | Down  | Right |
  * `-----------------------------------------------------------------------------------------'
  */
-  [0] = KEYMAP( /* Basic QWERTY */
-      KC_ESC,   KC_1,     KC_2,     KC_3,    KC_4,     KC_5,     KC_6,     KC_7,    KC_8,  KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_GRV,  \
-      KC_TAB,   KC_Q,     KC_W,     KC_E,    KC_R,     KC_T,     KC_Y,     KC_U,    KC_I,  KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_BSLS,  \
+  [0] = LAYOUT( /* Basic QWERTY */
+      KC_ESC,   KC_1,     KC_2,     KC_3,    KC_4,     KC_5,     KC_6,     KC_7,    KC_8,  KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSLS,  \
+      KC_TAB,   KC_Q,     KC_W,     KC_E,    KC_R,     KC_T,     KC_Y,     KC_U,    KC_I,  KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_BSPC,  \
       LT(_FNCAPS, KC_CAPS),  KC_A,     KC_S,     KC_D,    KC_F,     KC_G,     KC_H,     KC_J,    KC_K,  KC_L,     KC_SCLN,  KC_QUOT,  KC_NO,    KC_ENT,   \
       KC_LSFT,  KC_NO,    KC_Z,     KC_X,    KC_C,     KC_V,     KC_B,     KC_N,    KC_M,  KC_COMM,  KC_DOT,   KC_SLSH,  MO(_FNRIGHTSHIFT),  KC_UP,  \
-      KC_LCTL,  KC_LGUI,  KC_LALT,  KC_SPC,  KC_BSPC,  KC_RALT,  KC_LEFT, KC_DOWN, KC_RIGHT \
+      KC_LCTL,  KC_LGUI,  KC_LALT,  KC_SPC,  KC_GRV,  KC_RALT,  KC_LEFT, KC_DOWN, KC_RIGHT \
       ),
 
 /* Layer 1
@@ -61,16 +46,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |-----------------------------------------------------------------------------------------+
  * |         |     |     |     |     |     |     | Psc |     |     |     |     |             |
  * |-----------------------------------------------------------------------------------------+
- * |           | Led | Led-| Led+|     | Mute| Vol+| Vol-|     |     |     |    Play   |     |
+ * |           | Led | Led+| Led-|     | Mute| Vol+| Vol-|     |     |     |    Play   |     |
  * |-----------------------------------------------------------------------------------------+
  * |       |       |       |                                 |       | Prev  | Stop  | Next  |
  * `-----------------------------------------------------------------------------------------'
  */
-  [_FNCAPS] = KEYMAP( /* Layer 1 */
+  [_FNCAPS] = LAYOUT( /* Layer 1 */
       ______,   KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_F9,  KC_F10, KC_F11, KC_F12, KC_INS,  \
       ______,   ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______,  \
       ______,   ______, ______, ______, ______, ______, ______, KC_PSCR,______, ______, ______, ______, ______, ______,   \
-      ______,   ______,  S_LED,  S_LEDI, S_LEDD,______,KC_MUTE,KC_VOLU,KC_VOLD,______, ______, ______, ______,KC_MPLY,  \
+      ______,   ______, BL_TOGG, BL_INC, BL_DEC, ______,KC_MUTE,KC_VOLU,KC_VOLD,______, ______, ______, ______,KC_MPLY,  \
       ______,   ______, ______,                 ______,         KC_DEL,         ______, KC_MPRV,    KC_MSTP,    KC_MNXT \
       ),
 
@@ -87,7 +72,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |       |       |       |                                 |       | Home  | PgDown| End   |
  * `-----------------------------------------------------------------------------------------'
  */
-  [_FNRIGHTSHIFT] = KEYMAP( /* Layer 2 */
+  [_FNRIGHTSHIFT] = LAYOUT( /* Layer 2 */
       ______,   ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______,  \
       ______,   ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______,  \
       ______,   ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______, ______,   \

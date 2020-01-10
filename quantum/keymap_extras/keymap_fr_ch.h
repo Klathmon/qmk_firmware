@@ -1,11 +1,22 @@
+/* Copyright 2016 Vincent Pochet
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #ifndef KEYMAP_FR_CH
 #define KEYMAP_FR_CH
 
 #include "keymap.h"
-
-// Alt gr
-#define ALGR(kc) RALT(kc)
-#define FR_CH_ALGR KC_RALT
 
 // normal characters
 #define FR_CH_Z KC_Y
@@ -55,44 +66,44 @@
 #define FR_CH_UE KC_LBRC
 #define FR_CH_OE KC_SCLN
 
-#define FR_CH_CIRC KC_EQL // accent circumflex ^ and grave ` and ~
-#define FR_CH_LESS KC_NUBS // < and > and backslash
-#define FR_CH_MINS KC_SLSH // - and _
-#define FR_CH_DLR KC_BSLS // $, £ and }
-#define FR_CH_PARA KC_GRV // § and ring °
-#define FR_CH_DIAE KC_RBRC // accent ¨
+#define FR_CH_CIRC KC_EQL   // accent circumflex ^ and grave ` and ~
+#define FR_CH_LESS KC_NUBS  // < and > and backslash
+#define FR_CH_MINS KC_SLSH  // - and _
+#define FR_CH_DLR KC_BSLS   // $, £ and }
+#define FR_CH_PARA KC_GRV   // § and ring °
+#define FR_CH_DIAE KC_RBRC  // accent ¨
 
 // shifted characters
-#define FR_CH_RING LSFT(KC_GRV) // °
-#define FR_CH_EXLM LSFT(KC_RBRC) // !
-#define FR_CH_PLUS LSFT(KC_1) // +
-#define FR_CH_DQOT LSFT(KC_2) // "
-#define FR_CH_ASTR LSFT(KC_3) // *
-#define FR_CH_PERC LSFT(KC_5) // %
-#define FR_CH_AMPR LSFT(KC_6) // &
-#define FR_CH_SLSH LSFT(KC_7) // /
-#define FR_CH_LPRN LSFT(KC_8) // (
-#define FR_CH_RPRN LSFT(KC_9) // )
-#define FR_CH_EQL  LSFT(KC_0) // =
-#define FR_CH_QST  LSFT(FR_CH_QUOT) // ?
-#define FR_CH_MORE LSFT(FR_CH_LESS) // >
-#define FR_CH_COLN LSFT(KC_DOT) // :
-#define FR_CH_SCLN LSFT(KC_COMM) // ;
-#define FR_CH_UNDS LSFT(FR_CH_MINS) // _
-#define FR_CH_CCED LSFT(KC_4) // ç
-#define FR_CH_GRV  LSFT(FR_CH_CIRC) // accent grave `
+#define FR_CH_RING LSFT(KC_GRV)      // °
+#define FR_CH_EXLM LSFT(KC_RBRC)     // !
+#define FR_CH_PLUS LSFT(KC_1)        // +
+#define FR_CH_DQOT LSFT(KC_2)        // "
+#define FR_CH_ASTR LSFT(KC_3)        // *
+#define FR_CH_PERC LSFT(KC_5)        // %
+#define FR_CH_AMPR LSFT(KC_6)        // &
+#define FR_CH_SLSH LSFT(KC_7)        // /
+#define FR_CH_LPRN LSFT(KC_8)        // (
+#define FR_CH_RPRN LSFT(KC_9)        // )
+#define FR_CH_EQL LSFT(KC_0)         // =
+#define FR_CH_QST LSFT(FR_CH_QUOT)   // ?
+#define FR_CH_MORE LSFT(FR_CH_LESS)  // >
+#define FR_CH_COLN LSFT(KC_DOT)      // :
+#define FR_CH_SCLN LSFT(KC_COMM)     // ;
+#define FR_CH_UNDS LSFT(FR_CH_MINS)  // _
+#define FR_CH_CCED LSFT(KC_4)        // ç
+#define FR_CH_GRV LSFT(FR_CH_CIRC)   // accent grave `
 
 // Alt Gr-ed characters
-#define FR_CH_LCBR ALGR(KC_QUOT) // {
-#define FR_CH_LBRC ALGR(KC_LBRC) // [
-#define FR_CH_RBRC ALGR(KC_9) // ]
-#define FR_CH_RCBR ALGR(KC_0) // }
-#define FR_CH_BSLS ALGR(FR_CH_LESS) // backslash
-#define FR_CH_AT   ALGR(KC_2) // @
-#define FR_CH_EURO ALGR(KC_E) // €
-#define FR_CH_TILD ALGR(FR_CH_CIRC) // ~
-#define FR_CH_PIPE ALGR(KC_1) // |
-#define FR_CH_HASH ALGR(KC_3) // #
-#define FR_CH_ACUT ALGR(FR_CH_QUOT) // accent acute ´
+#define FR_CH_LCBR ALGR(KC_QUOT)     // {
+#define FR_CH_LBRC ALGR(KC_LBRC)     // [
+#define FR_CH_RBRC ALGR(KC_9)        // ]
+#define FR_CH_RCBR ALGR(KC_0)        // }
+#define FR_CH_BSLS ALGR(FR_CH_LESS)  // backslash
+#define FR_CH_AT ALGR(KC_2)          // @
+#define FR_CH_EURO ALGR(KC_E)        // €
+#define FR_CH_TILD ALGR(FR_CH_CIRC)  // ~
+#define FR_CH_PIPE ALGR(KC_1)        // |
+#define FR_CH_HASH ALGR(KC_3)        // #
+#define FR_CH_ACUT ALGR(FR_CH_QUOT)  // accent acute ´
 
 #endif
