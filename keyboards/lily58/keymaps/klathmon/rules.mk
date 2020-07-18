@@ -18,11 +18,10 @@ SWAP_HANDS_ENABLE = no      # Enable one-hand typing
 RAW_ENABLE = yes            # Enable RAW HID communication to PC
 ENCODER_ENABLE = yes        # Enable rotary encoder
 OLED_DRIVER_ENABLE = yes    # OLED display
+HID_SECONDARY_SCREEN_ENABLE = yes
 
 # Do not enable SLEEP_LED_ENABLE. it uses the same timer as BACKLIGHT_ENABLE
 SLEEP_LED_ENABLE = no    # Breathing sleep LED during USB suspend
-
-OLED_FONT_H = "qmk_hid_custom_font.c"
 
 # Reduce size of firmware by optimizing at link time
 Link_Time_Optimization = yes
@@ -32,5 +31,5 @@ SRC +=  \
         ./lib/logo_reader.c \
         ./mac_mode.c \
         ./layer_state_reader.c \
+        ./hid_display.c \
         ./wpm.c
-        # ./hid_display.c \

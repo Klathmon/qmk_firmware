@@ -2,7 +2,7 @@
 #include "lily58.h"
 
 // Add headers for raw hid communication
-#include <split_scomm.h>
+#include <transport.h>
 #include "raw_hid.h"
 
 // HID input
@@ -17,7 +17,7 @@ const char *read_logo(void);
 
 bool is_hid_connected(void) { return hid_connected; }
 
-const char *read_hid_status(void) {
+const char *get_hid_status_display_string(void) {
     if (hid_connected) {
         snprintf(hid_status_str, sizeof(hid_status_str), "HID Screen: %d", screen_show_index + 1);
     } else {
@@ -52,65 +52,51 @@ void decrease_screen_num(void) {
     raw_hid_send_screen_index();
 }
 
-// Slave screen writer
-void write_slave_info_screen(struct CharacterMatrix *matrix) {
-    if (serial_slave_screen_buffer[0] > 0) {
-        // If the first byte of the buffer is non-zero we should have a full set of data to show,
-        // So we copy it into the display
-        matrix_write(matrix, (char *)serial_slave_screen_buffer + 1);
-    } else {
-        // Otherwise we just draw the logo
-        matrix_write_ln(matrix, "");
-        matrix_write(matrix, read_logo());
-    }
-}
-
 void raw_hid_receive(uint8_t *data, uint8_t length) {
-    // PC connected, so set the flag to show a message on the master display
-    hid_connected = true;
+  // PC connected, so set the flag to show a message on the master display
+  hid_connected = true;
 
-    // Initial connections use '1' in the first byte to indicate this
-    if (length > 1 && data[0] == 1) {
-        // New connection so restart screen_data_buffer
-        screen_data_index = 0;
+  // Initial connections use '1' in the first byte to indicate this
+  if (length > 1 && data[0] == 1) {
+    // New connection so restart screen_data_buffer
+    screen_data_index = 0;
 
-        // The second byte is the number of info screens the connected node script allows us to scroll through
-        screen_max_count = data[1];
-        if (screen_show_index >= screen_max_count) {
-            screen_show_index = 0;
-        }
-
-        // Tell the connection which info screen we want to look at initially
-        raw_hid_send_screen_index();
-        return;
+    // The second byte is the number of info screens the connected node script allows us to scroll through
+    screen_max_count = data[1];
+    if (screen_show_index >= screen_max_count) {
+      screen_show_index = 0;
     }
 
-    // Otherwise the data we receive is one line of the screen to show on the display
-    if (length >= 21) {
-        // Copy the data into our buffer and increment the number of lines we have got so far
-        memcpy((char *)&screen_data_buffer[screen_data_index * 21], data, 21);
-        screen_data_index++;
+      // Tell the connection which info screen we want to look at initially
+      raw_hid_send_screen_index();
+      return;
+  }
 
-        // Once we reach 4 lines, we have a full screen
-        if (screen_data_index == 4) {
-            // Reset the buffer back to receive the next full screen data
-            screen_data_index = 0;
+  // Otherwise the data we receive is one line of the screen to show on the display
+  if (length >= 21) {
+    // Copy the data into our buffer and increment the number of lines we have got so far
+    memcpy((char *)&screen_data_buffer[screen_data_index * 21], data, 21);
+    screen_data_index++;
 
-            // Now get ready to transfer the whole 4 lines to the slave side of the keyboard.
-            // First clear the transfer buffer with spaces just in case.
-            memset((char *)&serial_slave_screen_buffer[0], ' ', sizeof(serial_slave_screen_buffer));
+    // Once we reach 4 lines, we have a full screen
+    if (screen_data_index == 4) {
+      // Reset the buffer back to receive the next full screen data
+      screen_data_index = 0;
 
-            // Copy in the 4 lines of screen data, but start at index 1, we use index 0 to indicate a connection in the slave code
-            memcpy((char *)&serial_slave_screen_buffer[1], screen_data_buffer, sizeof(screen_data_buffer));
+      // Now get ready to transfer the whole 4 lines to the slave side of the keyboard.
+      // First clear the transfer buffer with spaces just in case.
+      memset((char *)&serial_slave_screen_buffer[0], ' ', sizeof(serial_slave_screen_buffer));
 
-            // Set index 0 to indicate a connection has been established
-            serial_slave_screen_buffer[0] = 1;
+      // Copy in the 4 lines of screen data, but start at index 1, we use index 0 to indicate a connection in the slave code
+      memcpy((char *)&serial_slave_screen_buffer[1], screen_data_buffer, sizeof(screen_data_buffer));
+      // Set index 0 to indicate a connection has been established
+      serial_slave_screen_buffer[0] = 1;
 
-            // Make sure to zero terminate the buffer
-            serial_slave_screen_buffer[sizeof(serial_slave_screen_buffer) - 1] = 0;
+      // Make sure to zero terminate the buffer
+      serial_slave_screen_buffer[sizeof(serial_slave_screen_buffer) - 1] = 0;
 
-            // Indicate that the screen data has changed and needs transferring to the slave side
-            hid_screen_change = true;
-        }
+      // Indicate that the screen data has changed and needs transferring to the slave side
+      hid_screen_change = true;
     }
+  }
 }

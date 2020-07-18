@@ -1,22 +1,28 @@
 #include <string.h>
 #include <stddef.h>
+#include <print.h>
 
 #include "config.h"
 #include "matrix.h"
 #include "quantum.h"
 
+
 #define ROWS_PER_HAND (MATRIX_ROWS / 2)
 
-#ifdef RGBLIGHT_ENABLE
-#    include "rgblight.h"
-#endif
+#    if defined(OLED_DRIVER_ENABLE) && defined(HID_SECONDARY_SCREEN_ENABLE)
+#        include "oled_driver.h"
+#    endif
 
-#ifdef BACKLIGHT_ENABLE
-#    include "backlight.h"
-#endif
+#    ifdef RGBLIGHT_ENABLE
+#        include "rgblight.h"
+#    endif
 
-#ifdef ENCODER_ENABLE
-#    include "encoder.h"
+#    ifdef BACKLIGHT_ENABLE
+#        include "backlight.h"
+#    endif
+
+#    ifdef ENCODER_ENABLE
+#        include "encoder.h"
 static pin_t encoders_pad[] = ENCODERS_PAD_A;
 #    define NUMBER_OF_ENCODERS (sizeof(encoders_pad) / sizeof(pin_t))
 #endif
@@ -147,6 +153,12 @@ typedef struct _Serial_m2s_buffer_t {
 #    endif
 } Serial_m2s_buffer_t;
 
+# ifdef HID_SECONDARY_SCREEN_ENABLE
+uint8_t volatile hid_status = 0;
+uint8_t volatile serial_slave_screen_buffer[SERIAL_SCREEN_BUFFER_LENGTH] = {0};
+bool volatile hid_screen_change = false;
+# endif
+
 #    if defined(RGBLIGHT_ENABLE) && defined(RGBLIGHT_SPLIT)
 // When MCUs on both sides drive their respective RGB LED chains,
 // it is necessary to synchronize, so it is necessary to communicate RGB
@@ -173,6 +185,9 @@ enum serial_transaction_id {
 #    if defined(RGBLIGHT_ENABLE) && defined(RGBLIGHT_SPLIT)
     PUT_RGBLIGHT,
 #    endif
+#    ifdef HID_SECONDARY_SCREEN_ENABLE
+    HID_SEND_SCREEN,
+#    endif
 };
 
 SSTD_t transactions[] = {
@@ -188,6 +203,12 @@ SSTD_t transactions[] = {
     [PUT_RGBLIGHT] =
         {
             (uint8_t *)&status_rgblight, sizeof(serial_rgblight), (uint8_t *)&serial_rgblight, 0, NULL  // no slave to master transfer
+        },
+#    endif
+#    ifdef HID_SECONDARY_SCREEN_ENABLE
+    [HID_SEND_SCREEN] =
+        {
+            (uint8_t *)&hid_status, sizeof(serial_slave_screen_buffer), (uint8_t *)&serial_slave_screen_buffer, 0, NULL  // no slave to master transfer
         },
 #    endif
 };
@@ -251,6 +272,15 @@ bool transport_master(matrix_row_t matrix[]) {
     // Write wpm to slave
     serial_m2s_buffer.current_wpm = get_current_wpm();
 #    endif
+
+# ifdef HID_SECONDARY_SCREEN_ENABLE
+    if (hid_screen_change) {
+        if (soft_serial_transaction(HID_SEND_SCREEN) != TRANSACTION_END) {
+            return false;
+        }
+        hid_screen_change = false;
+    }
+# endif
     return true;
 }
 
@@ -270,6 +300,20 @@ void transport_slave(matrix_row_t matrix[]) {
 
 #    ifdef WPM_ENABLE
     set_current_wpm(serial_m2s_buffer.current_wpm);
+#    endif
+
+#    ifdef HID_SECONDARY_SCREEN_ENABLE
+    oled_write_ln("got here1")
+    if (hid_status == TRANSACTION_ACCEPTED) {
+        oled_write_ln("got here2")
+        if (serial_slave_screen_buffer[0] > 0) {
+          oled_write_ln("got here3")
+            // If the first byte of the buffer is non-zero we should have a full set of data to show,
+            // So we copy it into the display
+            // oled_write((char *)serial_slave_screen_buffer + 1, false);
+        }
+        hid_status = TRANSACTION_END;
+    }
 #    endif
 }
 

@@ -5,6 +5,8 @@
   #include "split_util.h"
 #endif
 
+#include <transport.h>
+
 #ifdef RGBLIGHT_ENABLE
   //Following line allows macro to read current RGB settings
   extern rgblight_config_t rgblight_config;
@@ -49,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_HYPER_LAYER] = LAYOUT(
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_TERM,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_MPRV,  KC_MPLY,  KC_MNXT,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,    RESET,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, LNCH_APP,  MAC_MODE,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
@@ -80,15 +82,28 @@ const char *read_logo(void);
 void set_wpm(void);
 const char *get_wpm_display_string(void);
 const char *get_layer_display_string(void);
+void increase_screen_num(void);
+void decrease_screen_num(void);
+bool is_hid_connected(void);
+const char *get_hid_status_display_string(void);
 
 void oled_task_user(void) {
   if (is_keyboard_master()) {
     oled_write_ln(get_mac_mode_display_string(), false);
     oled_write_ln(get_layer_display_string(), false);
-    oled_write_ln("", false);
+    oled_write_ln(get_hid_status_display_string(), false);
     oled_write_ln(get_wpm_display_string(), false);
   } else {
-    oled_write(read_logo(), false);
+    // oled_write((char *)serial_slave_screen_buffer + 1, false);
+    // TODO: add some logic that disables the hid system if no data has been received for a while
+    if (serial_slave_screen_buffer[0] > 0) {
+      // If the first byte of the buffer is non-zero we should have a full set of data to show,
+      // So we copy it into the display
+      oled_write((char *)serial_slave_screen_buffer/* + 1*/, false);
+    } else {
+      // Otherwise we just draw the logo
+      oled_write(read_logo(), false);
+    }
   }
 }
 #endif // OLED_DRIVER_ENABLE
@@ -261,20 +276,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // Rotary Encoder
 void encoder_update_user(uint8_t index, bool counterclockwise) {
   switch (biton32(layer_state)) {
-    // case _HYPER_LAYER: {
-    //   if (counterclockwise) {
-    //     decrease_screen_num();
-    //   } else {
-    //     increase_screen_num();
-    //   }
-    //   break;
-    // }
+    case _HYPER_LAYER: {
+      if (counterclockwise) {
+        increase_screen_num();
+      } else {
+        decrease_screen_num();
+      }
+      break;
+    }
 
     default: {
       if (counterclockwise) {
-        tap_code(KC_VOLD);
-      } else {
         tap_code(KC_VOLU);
+      } else {
+        tap_code(KC_VOLD);
       }
       break;
     }
