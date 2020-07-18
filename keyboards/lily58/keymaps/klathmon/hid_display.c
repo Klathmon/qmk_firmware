@@ -2,7 +2,7 @@
 #include "lily58.h"
 
 // Add headers for raw hid communication
-#include <transport.h>
+#include "split_common/transport.h"
 #include "raw_hid.h"
 
 // HID input

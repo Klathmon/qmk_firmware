@@ -8,8 +8,8 @@
 #include <transport.h>
 
 #ifdef RGBLIGHT_ENABLE
-  //Following line allows macro to read current RGB settings
-  extern rgblight_config_t rgblight_config;
+    // Following line allows macro to read current RGB settings
+    extern rgblight_config_t rgblight_config;
 #endif
 
 extern uint8_t is_master;

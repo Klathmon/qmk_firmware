@@ -18,7 +18,6 @@ SWAP_HANDS_ENABLE = no      # Enable one-hand typing
 RAW_ENABLE = yes            # Enable RAW HID communication to PC
 ENCODER_ENABLE = yes        # Enable rotary encoder
 OLED_DRIVER_ENABLE = yes    # OLED display
-HID_SECONDARY_SCREEN_ENABLE = yes
 
 # Do not enable SLEEP_LED_ENABLE. it uses the same timer as BACKLIGHT_ENABLE
 SLEEP_LED_ENABLE = no    # Breathing sleep LED during USB suspend

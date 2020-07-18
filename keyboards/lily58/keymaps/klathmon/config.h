@@ -36,3 +36,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Encoders
 #define ENCODERS_PAD_A { F5 }
 #define ENCODERS_PAD_B { F4 }
+
+// Replace the lily58 font with my custom one
+#undef OLED_FONT_H
+#define OLED_FONT_H "qmk_hid_custom_font.c"
+
+#define HID_SECONDARY_SCREEN_ENABLE
+#define SERIAL_SCREEN_BUFFER_LENGTH (/*SSD1306_MatrixCols*/ 21 * /*SSD1306_MatrixRows*/ 4 + /*Extra IsEnabledBit*/ 1)

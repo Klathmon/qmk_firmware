@@ -5,7 +5,7 @@
 #include "config.h"
 #include "matrix.h"
 #include "quantum.h"
-
+#include "transport.h"
 
 #define ROWS_PER_HAND (MATRIX_ROWS / 2)
 
@@ -208,7 +208,11 @@ SSTD_t transactions[] = {
 #    ifdef HID_SECONDARY_SCREEN_ENABLE
     [HID_SEND_SCREEN] =
         {
-            (uint8_t *)&hid_status, sizeof(serial_slave_screen_buffer), (uint8_t *)&serial_slave_screen_buffer, 0, NULL  // no slave to master transfer
+            (uint8_t *)&hid_status,
+            sizeof(serial_slave_screen_buffer),
+            (uint8_t *)&serial_slave_screen_buffer,
+            0,
+            NULL  // no slave to master transfer
         },
 #    endif
 };
@@ -244,11 +248,11 @@ void transport_rgblight_slave(void) {
 
 bool transport_master(matrix_row_t matrix[]) {
 #    ifndef SERIAL_USE_MULTI_TRANSACTION
-    if (soft_serial_transaction() != TRANSACTION_END) {
+        if (soft_serial_transaction() != TRANSACTION_END) {
         return false;
     }
 #    else
-    transport_rgblight_master();
+        transport_rgblight_master();
     if (soft_serial_transaction(GET_SLAVE_MATRIX) != TRANSACTION_END) {
         return false;
     }
@@ -303,11 +307,8 @@ void transport_slave(matrix_row_t matrix[]) {
 #    endif
 
 #    ifdef HID_SECONDARY_SCREEN_ENABLE
-    oled_write_ln("got here1")
     if (hid_status == TRANSACTION_ACCEPTED) {
-        oled_write_ln("got here2")
-        if (serial_slave_screen_buffer[0] > 0) {
-          oled_write_ln("got here3")
+        if ((char *)&serial_slave_screen_buffer[0] > 0) {
             // If the first byte of the buffer is non-zero we should have a full set of data to show,
             // So we copy it into the display
             // oled_write((char *)serial_slave_screen_buffer + 1, false);
