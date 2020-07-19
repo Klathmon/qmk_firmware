@@ -19,7 +19,7 @@ bool is_hid_connected(void) { return hid_connected; }
 
 const char *get_hid_status_display_string(void) {
     if (hid_connected) {
-        snprintf(hid_status_str, sizeof(hid_status_str), "HID Screen: %d", screen_show_index + 1);
+        snprintf(hid_status_str, sizeof(hid_status_str), "HID Screen %d", screen_show_index + 1);
     } else {
         snprintf(hid_status_str, sizeof(hid_status_str), "HID Disconnected");
     }

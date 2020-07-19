@@ -77,34 +77,28 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 // When you add source files to SRC in rules.mk, you can use functions.
 void toggle_mac_mode(void);
 bool is_mac_mode(void);
-const char *get_mac_mode_display_string(void);
 const char *read_logo(void);
 void set_wpm(void);
-const char *get_wpm_display_string(void);
-const char *get_layer_display_string(void);
 void increase_screen_num(void);
 void decrease_screen_num(void);
 bool is_hid_connected(void);
-const char *get_hid_status_display_string(void);
+const char *read_all_lines(void);
 
 void oled_task_user(void) {
-  if (is_keyboard_master()) {
-    oled_write_ln(get_mac_mode_display_string(), false);
-    oled_write_ln(get_layer_display_string(), false);
-    oled_write_ln(get_hid_status_display_string(), false);
-    oled_write_ln(get_wpm_display_string(), false);
-  } else {
-    // oled_write((char *)serial_slave_screen_buffer + 1, false);
-    // TODO: add some logic that disables the hid system if no data has been received for a while
-    if (serial_slave_screen_buffer[0] > 0) {
-      // If the first byte of the buffer is non-zero we should have a full set of data to show,
-      // So we copy it into the display
-      oled_write((char *)serial_slave_screen_buffer/* + 1*/, false);
+    if (is_keyboard_master()) {
+        oled_write_ln(read_all_lines(), false);
     } else {
-      // Otherwise we just draw the logo
-      oled_write(read_logo(), false);
+        // oled_write((char *)serial_slave_screen_buffer + 1, false);
+        // TODO: add some logic that disables the hid system if no data has been received for a while
+        if (serial_slave_screen_buffer[0] > 0) {
+            // If the first byte of the buffer is non-zero we should have a full set of data to show,
+            // So we copy it into the display
+            oled_write((char *)serial_slave_screen_buffer /* + 1*/, false);
+        } else {
+            // Otherwise we just draw the logo
+            oled_write(read_logo(), false);
+        }
     }
-  }
 }
 #endif // OLED_DRIVER_ENABLE
 

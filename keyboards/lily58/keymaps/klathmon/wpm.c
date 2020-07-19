@@ -20,6 +20,6 @@ const char *get_wpm_display_string(void) {
     float words = (number_keys_this_combo / 5);
     float time  = (time_previous_key_pressed - time_combo_started);
     int   wpm   = round(words / (time / 1000 / 60));
-    snprintf(wpm_string, sizeof(wpm_string), "WPM: %5d", wpm);
+    snprintf(wpm_string, sizeof(wpm_string), "WPM: %3d", wpm);
     return wpm_string;
 }

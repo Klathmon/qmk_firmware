@@ -28,6 +28,7 @@ EXTRAFLAGS += -flto
 
 SRC +=  \
         ./lib/logo_reader.c \
+		./oled_master.c \
         ./mac_mode.c \
         ./layer_state_reader.c \
         ./hid_display.c \
