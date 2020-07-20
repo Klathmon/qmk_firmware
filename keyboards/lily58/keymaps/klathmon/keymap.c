@@ -5,7 +5,7 @@
   #include "split_util.h"
 #endif
 
-#include <transport.h>
+#include <split_common/transport.h>
 
 #ifdef RGBLIGHT_ENABLE
     // Following line allows macro to read current RGB settings
@@ -24,6 +24,11 @@ enum custom_keycodes {
     LCK_SCRN,               // lock screen
     LNCH_APP,               // launch the companion app
     OPN_TERM,               // open a new terminal window
+    OPN_RT,                 // open roosterteeth
+    OPN_YT,                 // open youtube
+    OPN_SC,                 // open soundcloud
+    OPN_GM,                 // open google music
+    OPN_DD,                 // open devdocs.io
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -49,8 +54,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
   [_HYPER_LAYER] = LAYOUT(
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_TERM,
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_GM,  OPN_SC,  OPN_TERM,
+      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_YT,  OPN_RT,  OPN_DD,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_MPRV,  KC_MPLY,  KC_MNXT,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,    RESET,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, LNCH_APP,  MAC_MODE,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
@@ -67,6 +72,7 @@ void matrix_init_user(void) {
 
 //SSD1306 OLED update loop, make sure to enable OLED_DRIVER_ENABLE=yes in rules.mk
 #ifdef OLED_DRIVER_ENABLE
+uint8_t volatile serial_slave_screen_buffer[SERIAL_SCREEN_BUFFER_LENGTH];
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
   if (!is_keyboard_master())
@@ -81,6 +87,7 @@ const char *read_logo(void);
 void set_wpm(void);
 void increase_screen_num(void);
 void decrease_screen_num(void);
+void display_slave_screen(void);
 bool is_hid_connected(void);
 const char *read_all_lines(void);
 
@@ -88,16 +95,7 @@ void oled_task_user(void) {
     if (is_keyboard_master()) {
         oled_write_ln(read_all_lines(), false);
     } else {
-        // oled_write((char *)serial_slave_screen_buffer + 1, false);
-        // TODO: add some logic that disables the hid system if no data has been received for a while
-        if (serial_slave_screen_buffer[0] > 0) {
-            // If the first byte of the buffer is non-zero we should have a full set of data to show,
-            // So we copy it into the display
-            oled_write((char *)serial_slave_screen_buffer /* + 1*/, false);
-        } else {
-            // Otherwise we just draw the logo
-            oled_write(read_logo(), false);
-        }
+        display_slave_screen();
     }
 }
 #endif // OLED_DRIVER_ENABLE
@@ -123,7 +121,7 @@ void run_command_on_host (char *command, bool minimize) {
     send_string(command);
     tap_code(KC_ENTER);
     if (minimize) {
-      _delay_ms(100);
+      _delay_ms(200);
       register_code(KC_LGUI);
       tap_code(KC_DOWN);
       unregister_code(KC_LGUI);
@@ -143,6 +141,17 @@ void run_program_on_host (char *program) {
     send_string(program);
     tap_code(KC_ENTER);
   }
+}
+
+void open_website_on_host (char *url) {
+    char cmd_str[255] = {};
+    if (is_mac_mode()) {
+        snprintf(cmd_str, sizeof(cmd_str), "open %s && exit 0", url);
+        run_command_on_host(cmd_str, false);
+    } else {
+        snprintf(cmd_str, sizeof(cmd_str), "explorer %s", url);
+        run_program_on_host(cmd_str);
+    }
 }
 
 void launch_companion_app(void) {
@@ -192,6 +201,36 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
+    case OPN_RT:
+        if (record->event.pressed) {
+          open_website_on_host("https://roosterteeth.com");
+        }
+        return false;
+        break;
+    case OPN_YT:
+        if (record->event.pressed) {
+          open_website_on_host("https://www.youtube.com/feed/subscriptions");
+        }
+        return false;
+        break;
+    case OPN_SC:
+        if (record->event.pressed) {
+          open_website_on_host("https://soundcloud.com/you/likes");
+        }
+        return false;
+        break;
+    case OPN_GM:
+        if (record->event.pressed) {
+          open_website_on_host("https://play.google.com/music/listen");
+        }
+        return false;
+        break;
+    case OPN_DD:
+        if (record->event.pressed) {
+          open_website_on_host("https://devdocs.io/");
+        }
+        return false;
+        break;
     // keycode rewrites
     case KC_LCTL:
         if (is_mac_mode()) {

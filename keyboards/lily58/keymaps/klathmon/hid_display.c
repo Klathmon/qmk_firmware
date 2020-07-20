@@ -5,20 +5,30 @@
 #include "split_common/transport.h"
 #include "raw_hid.h"
 
-// HID input
-bool    hid_connected                                       = false;  // Flag indicating if we have a PC connection yet
-uint8_t screen_max_count                                    = 0;      // Number of info screens we can scroll through (set by connecting node script)
-uint8_t screen_show_index                                   = 0;      // Current index of the info screen we are displaying
-uint8_t screen_data_buffer[SERIAL_SCREEN_BUFFER_LENGTH - 1] = {0};    // Buffer used to store the screen data sent by connected node script
-int     screen_data_index                                   = 0;      // Current index into the screen_data_buffer that we should write to
-char    hid_status_str[21]                                  = {};
+#if defined(OLED_DRIVER_ENABLE) && defined(HID_SECONDARY_SCREEN_ENABLE)
+#    include "oled_driver.h"
+#endif
 
 const char *read_logo(void);
+// HID input
+bool     hid_connected                                       = false;  // Flag indicating if we have a PC connection yet
+uint16_t time_of_last_data                                   = 0;      // the time when we last received HID data
+uint8_t  screen_max_count                                    = 0;      // Number of info screens we can scroll through (set by connecting node script)
+uint8_t  screen_show_index                                   = 0;      // Current index of the info screen we are displaying
+uint8_t  screen_data_buffer[SERIAL_SCREEN_BUFFER_LENGTH - 1] = {0};    // Buffer used to store the screen data sent by connected node script
+int      screen_data_index                                   = 0;      // Current index into the screen_data_buffer that we should write to
+char     hid_status_str[21]                                  = {};
 
-bool is_hid_connected(void) { return hid_connected; }
+bool is_hid_connected(void) {
+    if (time_of_last_data == 0 || timer_elapsed(time_of_last_data) > 10 * 1000) {
+        return false;
+    } else {
+        return true;
+    }
+ }
 
 const char *get_hid_status_display_string(void) {
-    if (hid_connected) {
+    if (is_hid_connected()) {
         snprintf(hid_status_str, sizeof(hid_status_str), "HID Screen %d", screen_show_index + 1);
     } else {
         snprintf(hid_status_str, sizeof(hid_status_str), "HID Disconnected");
@@ -26,8 +36,21 @@ const char *get_hid_status_display_string(void) {
     return hid_status_str;
 }
 
+void display_slave_screen (void) {
+    if (!is_keyboard_master()) {
+        if (serial_slave_screen_buffer[0] > 0) {
+            // If the first byte of the buffer is non-zero we should have a full set of data to show,
+            // So we copy it into the display
+            oled_write((char *)serial_slave_screen_buffer + 1, false);
+        } else {
+            // Otherwise we just draw the logo
+            oled_write(read_logo(), false);
+        }
+    }
+}
+
 void raw_hid_send_screen_index(void) {
-    if (hid_connected) {
+    if (is_hid_connected()) {
         // Send the current info screen index to the connected node script so that it can pass back the new data
         uint8_t send_data[32] = {0};
         send_data[0]          = screen_show_index + 1;  // Add one so that we can distinguish it from a null byte
@@ -53,8 +76,8 @@ void decrease_screen_num(void) {
 }
 
 void raw_hid_receive(uint8_t *data, uint8_t length) {
-  // PC connected, so set the flag to show a message on the master display
-  hid_connected = true;
+  // PC connected, so save when we last got data
+  time_of_last_data = timer_read();
 
   // Initial connections use '1' in the first byte to indicate this
   if (length > 1 && data[0] == 1) {

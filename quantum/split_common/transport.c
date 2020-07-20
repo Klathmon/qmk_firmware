@@ -288,6 +288,7 @@ bool transport_master(matrix_row_t matrix[]) {
     return true;
 }
 
+const char *read_logo(void);
 void transport_slave(matrix_row_t matrix[]) {
     transport_rgblight_slave();
     // TODO: if MATRIX_COLS > 8 change to pack()
@@ -308,11 +309,6 @@ void transport_slave(matrix_row_t matrix[]) {
 
 #    ifdef HID_SECONDARY_SCREEN_ENABLE
     if (hid_status == TRANSACTION_ACCEPTED) {
-        if ((char *)&serial_slave_screen_buffer[0] > 0) {
-            // If the first byte of the buffer is non-zero we should have a full set of data to show,
-            // So we copy it into the display
-            // oled_write((char *)serial_slave_screen_buffer + 1, false);
-        }
         hid_status = TRANSACTION_END;
     }
 #    endif
