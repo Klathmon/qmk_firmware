@@ -75,8 +75,9 @@ void matrix_init_user(void) {
 uint8_t volatile serial_slave_screen_buffer[SERIAL_SCREEN_BUFFER_LENGTH];
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  if (!is_keyboard_master())
+  if (!is_keyboard_master()) {
     return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
+  }
   return rotation;
 }
 
@@ -93,7 +94,8 @@ const char *read_all_lines(void);
 
 void oled_task_user(void) {
     if (is_keyboard_master()) {
-        oled_write_ln(read_all_lines(), false);
+        oled_write_ln("Testing", false);
+        // oled_write_ln(read_all_lines(), false);
     } else {
         display_slave_screen();
     }
