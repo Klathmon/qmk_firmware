@@ -94,8 +94,7 @@ const char *read_all_lines(void);
 
 void oled_task_user(void) {
     if (is_keyboard_master()) {
-        oled_write_ln("Testing", false);
-        // oled_write_ln(read_all_lines(), false);
+        oled_write_ln(read_all_lines(), false);
     } else {
         display_slave_screen();
     }
