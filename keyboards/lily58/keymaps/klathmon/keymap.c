@@ -21,6 +21,13 @@ extern uint8_t is_master;
 
 enum custom_keycodes {
     MAC_MODE = SAFE_RANGE,  // toggle between MacOS and Windows compat
+    THMBS_UP,               // 👍
+    ONE_HUNDO,              // 💯
+    ROFL,                   // 🤣
+    THINKING,               // 🤔
+    POINT_UP,               // 👆
+    PILE_O_POO,             // 💩
+    WATCHN_U,               // 👀
     LCK_SCRN,               // lock screen
     LNCH_APP,               // launch the companion app
     OPN_TERM,               // open a new terminal window
@@ -37,12 +44,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,                         KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_BSLS,
       KC_LGUI,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,                         KC_H,     KC_J,     KC_K,     KC_L,  KC_SCLN,     KC_QUOT,
       KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,   KC_MUTE,  LCK_SCRN,   KC_N,     KC_M,  KC_COMM,   KC_DOT,  KC_SLSH,      KC_ENT,
-                                    KC_LALT,  KC_ESC,  KC_LCTL,  KC_SPC,    KC_DEL,  MO(1),    MO(2),    MO(3)
+                            LT(3, KC_ESC), KC_LALT,  KC_LCTL,  KC_SPC,    KC_DEL,  MO(1),    MO(2),    MO(3)
   ),
   [_MOVEMENT_LAYER] = LAYOUT(
-      KC_TRNS,    KC_F1,    KC_F2,    KC_F3,    KC_F4,  KC_TRNS,                      KC_TRNS,  KC_HOME,  KC_PGUP,   KC_END,  KC_MINS,   KC_EQL,
-      KC_TRNS,    KC_F5,    KC_F6,    KC_F7,    KC_F8,  KC_TRNS,                      KC_TRNS,LCTL(KC_LEFT), KC_UP,LCTL(KC_RIGHT), KC_LBRC, KC_RBRC,
-      KC_TRNS,    KC_F9,   KC_F10,   KC_F11,   KC_F12,  KC_TRNS,                      KC_TRNS,  KC_LEFT,  KC_DOWN,  KC_RGHT,  KC_LCBR,  KC_RCBR,
+      KC_TRNS,   KC_TRNS,   KC_TRNS,   KC_TRNS,   KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_HOME,  KC_PGUP,   KC_END,  KC_MINS,   KC_EQL,
+      KC_TRNS,   KC_TRNS,   WATCHN_U, PILE_O_POO, POINT_UP,  KC_TRNS,                      KC_TRNS,LCTL(KC_LEFT), KC_UP,LCTL(KC_RIGHT), KC_LBRC, KC_RBRC,
+      KC_TRNS,  ONE_HUNDO,   ROFL,   THINKING,   THMBS_UP,  KC_TRNS,                      KC_TRNS,  KC_LEFT,  KC_DOWN,  KC_RGHT,  KC_LCBR,  KC_RCBR,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS , KC_TRNS,  KC_TRNS,  KC_PGDN,  KC_TRNS,  KC_TRNS,  KC_TRNS,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
@@ -54,9 +61,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
   [_HYPER_LAYER] = LAYOUT(
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_GM,  OPN_SC,  OPN_TERM,
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_YT,  OPN_RT,  OPN_DD,
-      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_MPRV,  KC_MPLY,  KC_MNXT,
+      KC_TRNS,  KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_GM,  OPN_SC,  OPN_TERM,
+      KC_TRNS,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_YT,  OPN_RT,  OPN_DD,
+      KC_TRNS,  KC_F9, KC_F10, KC_F11, KC_F12,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_MPRV,  KC_MPLY,  KC_MNXT,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,    RESET,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, LNCH_APP,  MAC_MODE,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
@@ -159,6 +166,18 @@ void launch_companion_app(void) {
   run_command_on_host("npx @klathmon/qmk-hid-display", true);
 }
 
+void send_emoji(char *emoji_desc) {
+    if (!is_mac_mode()) {
+        tap_code16(LGUI(KC_DOT));
+        _delay_ms(200);
+        send_string(emoji_desc);
+        _delay_ms(75);
+        tap_code(KC_ENTER);
+        _delay_ms(50);
+        tap_code(KC_ESC);
+    }
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
     #ifdef OLED_DRIVER_ENABLE
@@ -169,6 +188,49 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   uint8_t mods = get_mods();
 
   switch (keycode) {
+    // emoji!
+    case THMBS_UP:
+        if (record->event.pressed) {
+            send_emoji("thumbs up");
+            return false;
+        }
+        break;
+    case ONE_HUNDO:
+        if (record->event.pressed) {
+            send_emoji("100");
+            return false;
+        }
+        break;
+    case ROFL:
+        if (record->event.pressed) {
+            send_emoji("rofl");
+            return false;
+        }
+        break;
+    case THINKING:
+        if (record->event.pressed) {
+            send_emoji("think");
+            return false;
+        }
+        break;
+    case POINT_UP:
+        if (record->event.pressed) {
+            send_emoji("up");
+            return false;
+        }
+        break;
+    case PILE_O_POO:
+        if (record->event.pressed) {
+            send_emoji("poop");
+            return false;
+        }
+        break;
+    case WATCHN_U:
+        if (record->event.pressed) {
+            send_emoji("eyes");
+            return false;
+        }
+        break;
     // fancy keycodes!
     case MAC_MODE:
       if (record->event.pressed) {
@@ -310,6 +372,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // Rotary Encoder
 void encoder_update_user(uint8_t index, bool counterclockwise) {
   switch (biton32(layer_state)) {
+    case _MOVEMENT_LAYER: {
+      if (counterclockwise) {
+        tap_code(KC_WH_D);
+      } else {
+        tap_code(KC_WH_U);
+      }
+      break;
+    }
+    case _NUMPAD_LAYER: {
+        if (counterclockwise) {
+            tap_code16(LCTL(KC_Y));
+        } else {
+            tap_code16(LCTL(KC_Z));
+        }
+        break;
+    }
     case _HYPER_LAYER: {
       if (counterclockwise) {
         increase_screen_num();
