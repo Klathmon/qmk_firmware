@@ -37,6 +37,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MK_W_OFFSET_UNMOD 16
 #define MK_W_INTERVAL_UNMOD 40
 
+#define USB_POLLING_INTERVAL_MS 5
+
 // Encoders
 #define ENCODERS_PAD_A { F5 }
 #define ENCODERS_PAD_B { F4 }
