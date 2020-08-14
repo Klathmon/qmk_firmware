@@ -30,9 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define USE_SERIAL_PD2
 
-#define TAPPING_FORCE_HOLD
-#define RETRO_TAPPING
-#define TAPPING_TERM 200
+#define TAPPING_TERM 150
+
 #define MK_3_SPEED
 #define MK_W_OFFSET_UNMOD 16
 #define MK_W_INTERVAL_UNMOD 40
