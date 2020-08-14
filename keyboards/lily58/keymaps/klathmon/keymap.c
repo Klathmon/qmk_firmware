@@ -31,12 +31,15 @@ enum custom_keycodes {
     SHITS_LIT,              // 🔥
     LCK_SCRN,               // lock screen
     LNCH_APP,               // launch the companion app
+    OPN_WSL,                // open a new wsl terminal window
     OPN_TERM,               // open a new terminal window
+    OPN_RDT,                 // open reddit
     OPN_RT,                 // open roosterteeth
     OPN_YT,                 // open youtube
     OPN_SC,                 // open soundcloud
     OPN_GM,                 // open google music
     OPN_DD,                 // open devdocs.io
+    OPN_101,                 // open regex101.com
 };
 
 // clang-format off
@@ -46,7 +49,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,                         KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_BSLS,
       KC_LGUI,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,                         KC_H,     KC_J,     KC_K,     KC_L,  KC_SCLN,     KC_QUOT,
       KC_LSFT,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,   KC_MUTE,  LCK_SCRN,   KC_N,     KC_M,  KC_COMM,   KC_DOT,  KC_SLSH,      KC_ENT,
-                            LT(3, KC_ESC), KC_LALT,  KC_LCTL,  KC_SPC,    KC_DEL,  MO(1),    MO(2),    MO(3)
+                       LT(3, KC_ESC), LALT_T(KC_ESC),  KC_LCTL,  KC_SPC,    KC_DEL,  MO(1),    MO(2),    MO(3)
   ),
   [_MOVEMENT_LAYER] = LAYOUT(
       KC_TRNS,   KC_TRNS,   KC_TRNS,   KC_TRNS,   KC_TRNS,  KC_TRNS,                      KC_TRNS,  KC_HOME,  KC_PGUP,   KC_END,  KC_MINS,   KC_EQL,
@@ -63,9 +66,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
   [_HYPER_LAYER] = LAYOUT(
-      KC_TRNS,  KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_GM,  OPN_SC,  OPN_TERM,
-      KC_TRNS,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_YT,  OPN_RT,  OPN_DD,
-      KC_TRNS,  KC_F9, KC_F10, KC_F11, KC_F12,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_MPRV,  KC_MPLY,  KC_MNXT,
+      KC_TRNS,  KC_F1,  KC_F2,  KC_F3,  KC_F4,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  OPN_GM,  OPN_SC,  OPN_WSL,  OPN_TERM,
+      KC_TRNS,  KC_F5,  KC_F6,  KC_F7,  KC_F8,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_YT,  OPN_RT,  OPN_RDT,
+      KC_TRNS,  KC_F9, KC_F10, KC_F11, KC_F12,  KC_TRNS,                      KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  OPN_101,  OPN_DD,
       KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,    RESET,  KC_TRNS,  KC_MPRV,  KC_MPLY,  KC_MNXT, LNCH_APP,  MAC_MODE,
                                     KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
@@ -263,16 +266,32 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
+    case OPN_WSL:
+      if (record->event.pressed) {
+        if (is_mac_mode()) {
+            run_program_on_host("clear");
+        } else {
+            run_program_on_host("wsl");
+        }
+      }
+      return false;
+      break;
     case OPN_TERM:
       if (record->event.pressed) {
         if (is_mac_mode()) {
             run_program_on_host("clear");
         } else {
-            run_program_on_host("ubuntu");
+            run_program_on_host("bash");
         }
       }
       return false;
       break;
+    case OPN_RDT:
+        if (record->event.pressed) {
+          open_website_on_host("https://reddit.com");
+        }
+        return false;
+        break;
     case OPN_RT:
         if (record->event.pressed) {
           open_website_on_host("https://roosterteeth.com");
@@ -299,7 +318,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
     case OPN_DD:
         if (record->event.pressed) {
-          open_website_on_host("https://devdocs.io/");
+          open_website_on_host("https://devdocs.io");
+        }
+        return false;
+        break;
+    case OPN_101:
+        if (record->event.pressed) {
+          open_website_on_host("https://regex101.com");
         }
         return false;
         break;
