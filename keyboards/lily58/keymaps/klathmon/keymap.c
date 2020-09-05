@@ -1,15 +1,15 @@
 #include QMK_KEYBOARD_H
 
 #ifdef PROTOCOL_LUFA
-  #include "lufa.h"
-  #include "split_util.h"
+#include "lufa.h"
+#include "split_util.h"
 #endif
 
 #include <split_common/transport.h>
 
 #ifdef RGBLIGHT_ENABLE
-    // Following line allows macro to read current RGB settings
-    extern rgblight_config_t rgblight_config;
+// Following line allows macro to read current RGB settings
+extern rgblight_config_t rgblight_config;
 #endif
 
 extern uint8_t is_master;
@@ -19,27 +19,28 @@ extern uint8_t is_master;
 #define _NUMPAD_LAYER 2
 #define _HYPER_LAYER 3
 
-enum custom_keycodes {
-    MAC_MODE = SAFE_RANGE,  // toggle between MacOS and Windows compat
-    THMBS_UP,               // 👍
-    ONE_HUNDO,              // 💯
-    ROFL,                   // 🤣
-    THINKING,               // 🤔
-    POINT_UP,               // 👆
-    PILE_O_POO,             // 💩
-    WATCHN_U,               // 👀
-    SHITS_LIT,              // 🔥
-    LCK_SCRN,               // lock screen
-    LNCH_APP,               // launch the companion app
-    OPN_WSL,                // open a new wsl terminal window
-    OPN_TERM,               // open a new terminal window
-    OPN_RDT,                 // open reddit
-    OPN_RT,                 // open roosterteeth
-    OPN_YT,                 // open youtube
-    OPN_SC,                 // open soundcloud
-    OPN_GM,                 // open google music
-    OPN_DD,                 // open devdocs.io
-    OPN_101,                 // open regex101.com
+enum custom_keycodes
+{
+    MAC_MODE = SAFE_RANGE, // toggle between MacOS and Windows compat
+    THMBS_UP,              // 👍
+    ONE_HUNDO,             // 💯
+    ROFL,                  // 🤣
+    THINKING,              // 🤔
+    POINT_UP,              // 👆
+    PILE_O_POO,            // 💩
+    WATCHN_U,              // 👀
+    SHITS_LIT,             // 🔥
+    LCK_SCRN,              // lock screen
+    LNCH_APP,              // launch the companion app
+    OPN_WSL,               // open a new wsl terminal window
+    OPN_TERM,              // open a new terminal window
+    OPN_RDT,               // open reddit
+    OPN_RT,                // open roosterteeth
+    OPN_YT,                // open youtube
+    OPN_SC,                // open soundcloud
+    OPN_GM,                // open google music
+    OPN_DD,                // open devdocs.io
+    OPN_101,               // open regex101.com
 };
 
 // clang-format off
@@ -281,7 +282,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (is_mac_mode()) {
             run_program_on_host("clear");
         } else {
-            run_program_on_host("bash");
+            run_program_on_host("C:/Program Files/Git/git-bash.exe");
         }
       }
       return false;
