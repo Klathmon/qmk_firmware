@@ -28,7 +28,5 @@
     "[json]": {
         "editor.formatOnSave": false
     },
-    "clangd.arguments": [
-        "--header-insertion=never"
-    ]
+    "C_Cpp.errorSquiggles": "Disabled"
 }
