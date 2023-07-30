@@ -1,5 +1,5 @@
 {
-    "manufacturer": "Gregory Benner",
+    "manufacturer": "Klathmon",
     "keyboard_name": "qkf4",
     "maintainer": "Klathmon",
     "bootloader": "atmel-dfu",
@@ -21,7 +21,7 @@
     "usb": {
         "device_version": "1.0.0",
         "pid": "0x8BF4",
-        "vid": "0xFEED"
+        "vid": "0x6B6C"
     },
     "layouts": {
         "LAYOUT": {
