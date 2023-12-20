@@ -1,4 +1,4 @@
-/* Copyright 2020 Paul James
+/* Copyright 2023 Gregory Benner
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,23 +14,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "lumberjack.h"
-
-// void keyboard_pre_init_kb() {
-//     setPinOutput(LED1);
-//     setPinOutput(LED2);
-
-//     keyboard_pre_init_user();
-// }
-bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
-    // writePin(LED1, record->event.pressed);
-
-    return process_record_user(keycode, record);
-}
-
-layer_state_t layer_state_set_kb(layer_state_t state) {
-    // writePinLow(LED1);
-    // writePin(LED2, state);
-
-    return layer_state_set_user(state);
-}
+#undef USB_MAX_POWER_CONSUMPTION
+#define USB_MAX_POWER_CONSUMPTION 250

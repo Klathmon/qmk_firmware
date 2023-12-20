@@ -12,6 +12,7 @@ qmk compile --parallel 0 -kb keebio/bdn9/rev1 -km default &
 qmk compile --parallel 0 -kb qkf4 -km klathmon &
 qmk compile --parallel 0 -kb lily58/light -km klathmon &
 qmk compile --parallel 0 -kb lily58/rev1 -km klathmon &
+qmk compile --parallel 0 -kb peej/lumberjack/klathmon -km klathmon &
 
 mkdir -p ./build
 
