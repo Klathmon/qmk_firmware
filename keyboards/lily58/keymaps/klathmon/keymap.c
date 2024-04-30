@@ -2,7 +2,10 @@
 
 enum my_keycodes {
   KVM_MACBOOK = SAFE_RANGE,
-  KVM_WINDOWS
+  KVM_WINDOWS,
+  KVM_WIN_SMAC, // windows primary, mac secondary
+  KVM_MAC_SWIN, // mac primary, windows secondary
+  KVM_SWAP_KBM, // swap keyboard and mouse only
 };
 
 enum layers {
@@ -74,9 +77,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     ),
     [_HYPR] = LAYOUT(
-        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KVM_MACBOOK, KVM_WINDOWS,
-        KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, KC_WBAK, KC_WFWD,
-        KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_TRNS, KC_TRNS,
+        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KVM_SWAP_KBM, KVM_MACBOOK, KVM_WINDOWS,
+        KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, KVM_MAC_SWIN, KVM_WIN_SMAC,
+        KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
         KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KC_TRNS, KC_TRNS, KC_TRNS
     )
@@ -86,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     //     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
     //     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
     //                       KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
-    // )
+    //
 };
 
 const key_override_t redo_windows = ko_make_with_layers(MOD_MASK_CTRL, KC_Y, LCTL(LSFT(KC_Z)), 1<<_MAIN_WIN);
@@ -100,26 +103,54 @@ const key_override_t **key_overrides = (const key_override_t *[]){
     NULL // Null terminate
 };
 
+#define WAITTIME 150
+#define DTRCTL tap_code(KC_RCTL);wait_ms(WAITTIME);tap_code(KC_RCTL);wait_ms(WAITTIME)
+#define DTRALT tap_code(KC_RALT);wait_ms(WAITTIME);tap_code(KC_RALT);wait_ms(WAITTIME)
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case KVM_MACBOOK:
         if (record->event.pressed) {
-            tap_code(KC_RCTL);
-            wait_ms(200);
-            tap_code(KC_RCTL);
-            wait_ms(200);
+            DTRCTL;
             tap_code(KC_P1);
             layer_move(_MAIN_MAC);
         }
         return false;
     case KVM_WINDOWS:
         if (record->event.pressed) {
-            tap_code(KC_RCTL);
-            wait_ms(200);
-            tap_code(KC_RCTL);
-            wait_ms(200);
+            DTRCTL;
             tap_code(KC_P2);
             layer_move(_MAIN_WIN);
+        }
+        return false;
+    case KVM_MAC_SWIN:
+        if (record->event.pressed) {
+            DTRCTL;
+            tap_code(KC_P1);
+            layer_move(_MAIN_MAC);
+
+            wait_ms(WAITTIME);
+
+            DTRCTL;
+            tap_code(KC_LEFT);
+        }
+        return false;
+    case KVM_WIN_SMAC:
+        if (record->event.pressed) {
+            DTRCTL;
+            tap_code(KC_P2);
+            layer_move(_MAIN_WIN);
+
+            wait_ms(WAITTIME);
+
+            DTRCTL;
+            tap_code(KC_LEFT);
+        }
+        return false;
+    case KVM_SWAP_KBM:
+        if (record->event.pressed) {
+            DTRALT;
+            layer_invert(_MAIN_WIN);
         }
         return false;
     default:
