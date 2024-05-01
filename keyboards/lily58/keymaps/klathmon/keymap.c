@@ -6,6 +6,8 @@ enum my_keycodes {
   KVM_WIN_SMAC, // windows primary, mac secondary
   KVM_MAC_SWIN, // mac primary, windows secondary
   KVM_SWAP_KBM, // swap keyboard and mouse only
+  SCRN_SHOT, // a cross-platform safe screenshot button
+  SLEP, // cross platform sleep button
 };
 
 enum layers {
@@ -80,7 +82,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KVM_SWAP_KBM, KVM_MACBOOK, KVM_WINDOWS,
         KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, KVM_MAC_SWIN, KVM_WIN_SMAC,
         KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
-        KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
+      SCRN_SHOT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, SLEP, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KC_TRNS, KC_TRNS, KC_TRNS
     )
     // [10] = LAYOUT(
@@ -104,52 +106,110 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 };
 
 #define WAITTIME 150
-#define DTRCTL tap_code(KC_RCTL);wait_ms(WAITTIME);tap_code(KC_RCTL);wait_ms(WAITTIME)
-#define DTRALT tap_code(KC_RALT);wait_ms(WAITTIME);tap_code(KC_RALT);wait_ms(WAITTIME)
+
+void double_tap_rctl(void) {
+    tap_code(KC_RCTL);
+    wait_ms(WAITTIME);
+    tap_code(KC_RCTL);
+    wait_ms(WAITTIME);
+}
+void double_tap_ralt(void) {
+    tap_code(KC_RALT);
+    wait_ms(WAITTIME);
+    tap_code(KC_RALT);
+    wait_ms(WAITTIME);
+}
+
+void kvm_mac(void) {
+    double_tap_rctl();
+    tap_code(KC_P1);
+    layer_move(_MAIN_MAC);
+
+    wait_ms(WAITTIME);
+    tap_code(KC_ESC); // slap an escape in there to make sure the macbook is woken up when switching to it
+}
+
+void kvm_win(void) {
+    double_tap_rctl();
+    tap_code(KC_P2);
+    layer_move(_MAIN_WIN);
+
+    wait_ms(WAITTIME);
+    tap_code(KC_ESC); // slap an escape in there to make sure the PC is woken up when switching to it
+}
+
+void kbm_swap_kbm(void) {
+    double_tap_ralt();
+    layer_invert(_MAIN_MAC);
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
+    case SLEP:
+        if (record->event.pressed) {
+            if (layer_state_is(_MAIN_MAC)) {
+                // For MacBook: Command-Option-Power
+                register_code(KC_LGUI);   // Press the Command key
+                register_code(KC_LALT);   // Press the Option key
+                tap_code(KC_POWER);       // Tap the Power key
+                unregister_code(KC_LALT); // Release the Option key
+                unregister_code(KC_LGUI); // Release the Command key
+            } else {
+                // Windows makes this easy...
+                tap_code(KC_SLEP);
+            }
+        }
+        return false;
+    case SCRN_SHOT:
+        if (record->event.pressed) {
+            if (layer_state_is(_MAIN_MAC)) {
+                register_code(KC_LGUI);  // Press the Command key (GUI)
+                register_code(KC_LSFT);  // Press the Shift key
+                tap_code(KC_5);          // Tap the '5' key
+                unregister_code(KC_LSFT);// Release the Shift key
+                unregister_code(KC_LGUI);// Release the Command key
+            } else {
+                register_code(KC_LGUI);  // Press the Windows key
+                register_code(KC_LSFT);  // Press the Shift key
+                tap_code(KC_S);          // Tap the 'S' key
+                unregister_code(KC_LSFT);// Release the Shift key
+                unregister_code(KC_LGUI);// Release the Windows key
+            }
+        }
+        return false;
     case KVM_MACBOOK:
         if (record->event.pressed) {
-            DTRCTL;
-            tap_code(KC_P1);
-            layer_move(_MAIN_MAC);
+          kvm_mac();
         }
         return false;
     case KVM_WINDOWS:
         if (record->event.pressed) {
-            DTRCTL;
-            tap_code(KC_P2);
-            layer_move(_MAIN_WIN);
+          kvm_win();
         }
         return false;
     case KVM_MAC_SWIN:
         if (record->event.pressed) {
-            DTRCTL;
-            tap_code(KC_P1);
-            layer_move(_MAIN_MAC);
+            kvm_mac();
 
             wait_ms(WAITTIME);
 
-            DTRCTL;
+            double_tap_rctl();
             tap_code(KC_LEFT);
         }
         return false;
     case KVM_WIN_SMAC:
         if (record->event.pressed) {
-            DTRCTL;
-            tap_code(KC_P2);
-            layer_move(_MAIN_WIN);
+            kvm_win();
 
             wait_ms(WAITTIME);
 
-            DTRCTL;
+            double_tap_rctl();
             tap_code(KC_LEFT);
         }
         return false;
     case KVM_SWAP_KBM:
         if (record->event.pressed) {
-            DTRALT;
+            double_tap_ralt();
             layer_invert(_MAIN_WIN);
         }
         return false;
