@@ -43,3 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // RGB Lighting Changes
 #define RGBLIGHT_SLEEP
 #define RGBLIGHT_DEFAULT_VAL 15
+
+#define GSB_SCREENSAVER
+
+#define GSB_LAYER_LOGO
