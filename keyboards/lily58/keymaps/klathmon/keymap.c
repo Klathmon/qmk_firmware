@@ -297,7 +297,7 @@ void print_mode_icon(bool invert) {
 }
 
 bool oled_task_user(void) {
-    static bool invert_text = true;
+    static bool invert_text = GSB_DEFAULT_INVERT_OLED;
 
     #ifdef GSB_SCREENSAVER
         static uint32_t last_toggle_time = 0;
@@ -359,9 +359,11 @@ bool encoder_update_user(uint8_t index, bool counterclockwise) {
     // case _HYPR_WIN:
     // case _HYPR_MAC: {
     //   if (counterclockwise) {
-    //     increase_screen_num();
+    //     double_tap_rctl();
+    //     tap_code(KC_RGHT);
     //   } else {
-    //     decrease_screen_num();
+    //     double_tap_rctl();
+    //     tap_code(KC_LEFT);
     //   }
     //   break;
     // }
