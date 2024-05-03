@@ -44,7 +44,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGBLIGHT_SLEEP
 #define RGBLIGHT_DEFAULT_VAL 15
 
+// Greg's custom defines
+// time between keypresses in complex multi-key macros
+#define GSB_WAITTIME 100
+// invert the OLED display by default
 #define GSB_DEFAULT_INVERT_OLED true
-// #define GSB_SCREENSAVER
+// if defined, will enable the screensaver mode which will invert the OLED every GSB_SCREENSAVER milliseconds
+// #define GSB_SCREENSAVER 30000
 
+// if defined, the rotary encode will move the left/right screens through the possible options in the KVM
+// #define GSB_HYPER_KVM_ROTARY
+
+// if defined, the mac/windows logo will be displayed for each mode. when undef, the lily58 logo will be below the layer info line
 #define GSB_LAYER_LOGO
