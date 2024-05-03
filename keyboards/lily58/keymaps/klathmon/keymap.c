@@ -7,6 +7,7 @@ enum custom_keycodes {
     K_MW_SM,            // KVM: hybrid view | main: windows  secondary: mac
     K_MM_SW,            // KVM: hybrid view | main: mac      secondary: windows
     K_S_KBM,            // KVM: swap keyboard and mouse
+    QMK_B_F,            // QMK: build, flash, and reset to bootloader
 };
 
 // clang-format off
@@ -55,7 +56,7 @@ enum layers {
 #define M_LOCKM LGUI(LCTL(KC_Q))
 // sleep
 #define M_SLEPW KC_SLEP
-#define M_SLEPM LGUI(LALT(KC_POWER))
+#define M_SLEPM LGUI(LALT(KC_PWR))
 // screenshot key
 #define M_SSHTW LGUI(LSFT(KC_S))
 #define M_SSHTM LGUI(LSFT(KC_5))
@@ -116,14 +117,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     ),
     [_HYPR_WIN] = LAYOUT(
-        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
+        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QMK_B_F, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
         KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
         KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
         M_SSHTW, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, M_SLEPW, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KC_TRNS, KC_TRNS, KC_TRNS
     ),
     [_HYPR_MAC] = LAYOUT(
-        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
+        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QMK_B_F, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
         KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
         KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
         M_SSHTM, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, M_SLEPM, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
@@ -204,17 +205,27 @@ const char *read_logo(void);
 // Custom Keycodes Processing
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case K_WIN:
+        case QMK_B_F: {
+            if (record->event.pressed) {
+                SEND_STRING_DELAY("qmk flash -j 0 -kb " QMK_KEYBOARD " -km " QMK_KEYMAP SS_TAP(X_ENTER), TAP_CODE_DELAY);
+                wait_ms(1000);
+                reset_keyboard();
+            }
+            return false;
+        }
+        case K_WIN: {
             if (record->event.pressed) {
                 kvm_mac();
             }
             return false;
-        case K_MAC:
+        }
+        case K_MAC: {
             if (record->event.pressed) {
                 kvm_win();
             }
             return false;
-        case K_MM_SW:
+        }
+        case K_MM_SW: {
             if (record->event.pressed) {
                 kvm_mac();
 
@@ -224,7 +235,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code(KC_LEFT);
             }
             return false;
-        case K_MW_SM:
+        }
+        case K_MW_SM: {
             if (record->event.pressed) {
                 kvm_win();
 
@@ -234,13 +246,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code(KC_LEFT);
             }
             return false;
-        case K_S_KBM:
+        }
+        case K_S_KBM: {
             if (record->event.pressed) {
                 double_tap_ralt();
                 layer_invert(_MAIN_WIN);
             }
             return false;
-        default:
+        }
+        default: {
             if (record->event.pressed) {
 #ifdef OLED_ENABLE
                 // set_keylog(keycode, record);
@@ -248,6 +262,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
             }
             return true; // Process all other keycodes normally
+        }
     }
 }
 
