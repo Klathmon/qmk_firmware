@@ -1,17 +1,24 @@
+#include "config.h"
 #include QMK_KEYBOARD_H
 
+#ifdef CONSOLE_ENABLE
+#    include "print.h"
+#endif
+
+#define EEPROM_USER_OFFSET (uint8_t *)EECONFIG_SIZE
+
 // #region Layers and Custom Keycodes
-enum custom_keycodes {
+enum my_keycodes {
     K_WIN = SAFE_RANGE, // KVM: switch to windows PC
     K_MAC,              // KVM: switch to macbook
     K_MW_SM,            // KVM: hybrid view | main: windows  secondary: mac
     K_MM_SW,            // KVM: hybrid view | main: mac      secondary: windows
     K_S_KBM,            // KVM: swap keyboard and mouse
-    QMK_B_F,            // QMK: build, flash, and reset to bootloader
+    KQ_FLSH,            // type out qmk flash command for this keyboard
 };
 
 // clang-format off
-enum layers {
+enum my_layers {
     _MAIN_WIN, // Main layer for Windows
     _MVMT_WIN, // Movement layer for Windows
     _MAIN_MAC, // Main layer for MacOS
@@ -25,6 +32,7 @@ enum layers {
 // #endregion Layers and Custom Keycodes
 
 // #region Keycode alises
+
 // numpad
 #define M_NUMP MO(_NUMP)
 // number row delete layer tap
@@ -72,6 +80,7 @@ enum layers {
 // #endregion Keycode alises
 
 // #region Keymap
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_MAIN_WIN] = LAYOUT(
@@ -117,18 +126,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS
     ),
     [_HYPR_WIN] = LAYOUT(
-        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QMK_B_F, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
+        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QK_MAKE, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
         KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
         KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
         M_SSHTW, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, M_SLEPW, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
-                          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KC_TRNS, KC_TRNS, KC_TRNS
+                          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KQ_FLSH, KC_TRNS, KC_TRNS
     ),
     [_HYPR_MAC] = LAYOUT(
-        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QMK_B_F, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
+        KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QK_MAKE, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
         KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
         KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
         M_SSHTM, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, M_SLEPM, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
-                          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KC_TRNS, KC_TRNS, KC_TRNS
+                          KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KQ_FLSH, KC_TRNS, KC_TRNS
     )
     // [10] = LAYOUT(
     //     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
@@ -156,25 +165,9 @@ const key_override_t **key_overrides = (const key_override_t *[]){
 bool is_mac_mode(void) {
     return layer_state_is(_MAIN_MAC) || layer_state_is(_MVMT_MAC) || layer_state_is(_HYPR_MAC);
 }
-
-void double_tap_rctl(void) {
-    tap_code(KC_RCTL);
-    wait_ms(GSB_WAITTIME);
-    tap_code(KC_RCTL);
-    wait_ms(GSB_WAITTIME);
-}
-void double_tap_ralt(void) {
-    tap_code(KC_RALT);
-    wait_ms(GSB_WAITTIME);
-    tap_code(KC_RALT);
-    wait_ms(GSB_WAITTIME);
-}
-
 void kvm_mac(void) {
     layer_move(_MAIN_MAC);
-
-    double_tap_rctl();
-    tap_code(KC_P1);
+    SEND_STRING_DELAY(SS_TAP(X_RCTL) SS_TAP(X_RCTL) SS_TAP(X_P1), GSB_KVM_DELAY);
 
     // wait a bit, then slap an escape in there to make sure the macbook is woken up when switching to it
     wait_ms(500);
@@ -182,34 +175,40 @@ void kvm_mac(void) {
 }
 void kvm_win(void) {
     layer_move(_MAIN_WIN);
-
-    double_tap_rctl();
-    tap_code(KC_P2);
+    SEND_STRING_DELAY(SS_TAP(X_RCTL) SS_TAP(X_RCTL) SS_TAP(X_P2), GSB_KVM_DELAY);
 }
 void kbm_swap_kbm(void) {
-    double_tap_ralt();
     layer_invert(_MAIN_MAC);
+    SEND_STRING_DELAY(SS_TAP(X_RALT) SS_TAP(X_RALT), GSB_KVM_DELAY);
 }
 // #endregion Custom Functions
 
 #ifdef OLED_ENABLE // SSD1306 OLED header stuff
 const char *read_logo(void);
-// void set_keylog(uint16_t keycode, keyrecord_t *record);
-// const char *read_keylog(void);
-// const char *read_keylogs(void);
 
-// void set_timelog(void);
-// const char *read_timelog(void);
+#    ifdef GSB_FLASH_INVERT_ON_KEYPRESS
+static bool should_flash_inverted = false;
+#    endif
 #endif // OLED_ENABLE
+
+bool should_process_keypress(void) {
+    return true;
+}
 
 // Custom Keycodes Processing
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef OLED_ENABLE
+#    ifdef GSB_FLASH_INVERT_ON_KEYPRESS
+    if (record->event.pressed) {
+        should_flash_inverted = true;
+    }
+#    endif
+#endif
+
     switch (keycode) {
-        case QMK_B_F: {
+        case KQ_FLSH: {
             if (record->event.pressed) {
-                SEND_STRING_DELAY("qmk flash -j 0 -kb " QMK_KEYBOARD " -km " QMK_KEYMAP SS_TAP(X_ENTER), TAP_CODE_DELAY);
-                wait_ms(1000);
-                reset_keyboard();
+                SEND_STRING("qmk flash -j 0 -kb " QMK_KEYBOARD " -km " QMK_KEYMAP SS_TAP(X_ENTER));
             }
             return false;
         }
@@ -229,10 +228,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 kvm_mac();
 
-                wait_ms(GSB_WAITTIME);
+                wait_ms(GSB_KVM_DELAY);
 
-                double_tap_rctl();
-                tap_code(KC_LEFT);
+                SEND_STRING_DELAY(SS_TAP(X_RCTL) SS_TAP(X_RCTL) SS_TAP(X_LEFT), GSB_KVM_DELAY);
             }
             return false;
         }
@@ -240,37 +238,46 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 kvm_win();
 
-                wait_ms(GSB_WAITTIME);
+                wait_ms(GSB_KVM_DELAY);
 
-                double_tap_rctl();
-                tap_code(KC_LEFT);
+                SEND_STRING_DELAY(SS_TAP(X_RCTL) SS_TAP(X_RCTL) SS_TAP(X_LEFT), GSB_KVM_DELAY);
             }
             return false;
         }
         case K_S_KBM: {
             if (record->event.pressed) {
-                double_tap_ralt();
+                SEND_STRING_DELAY(SS_TAP(X_RALT) SS_TAP(X_RALT), GSB_KVM_DELAY);
                 layer_invert(_MAIN_WIN);
             }
             return false;
         }
         default: {
-            if (record->event.pressed) {
-#ifdef OLED_ENABLE
-                // set_keylog(keycode, record);
-                // set_timelog();
-#endif
-            }
             return true; // Process all other keycodes normally
         }
     }
+}
+
+// Host OS Detection
+bool process_detected_host_os_user(os_variant_t detected_os) {
+    switch (detected_os) {
+        case OS_MACOS:
+        case OS_IOS:
+            layer_move(_MAIN_MAC);
+            break;
+        case OS_LINUX:
+        case OS_WINDOWS:
+        case OS_UNSURE:
+            layer_move(_MAIN_WIN);
+            break;
+    }
+    return true;
 }
 
 #ifdef OLED_ENABLE // SSD1306 OLED update loop, make sure to enable OLED_ENABLE=yes in rules.mk
 // #region OLED Display functions
 char layer_state_str[24];
 char os_str[4];
-void print_layer_state_string(bool invert, bool write_os) {
+void print_layer_state_string(bool write_os) {
     if (is_mac_mode()) {
         snprintf(os_str, sizeof(os_str), "Mac");
     } else {
@@ -300,34 +307,33 @@ void print_layer_state_string(bool invert, bool write_os) {
             snprintf(layer_state_str, sizeof(layer_state_str), "Layer: %d", biton32(layer_state));
     }
 
-    oled_write(layer_state_str, invert);
+    oled_write(layer_state_str, false);
 }
 
-static char logo[][2][3] = {{{0x95, 0x96, 0}, {0xb5, 0xb6, 0}}, {{0x97, 0x98, 0}, {0xb7, 0xb8, 0}}};
-char        mode_icon_half[12];
+#    ifdef GSB_LAYER_LOGO
 // where to render the logo as constants
-#    define LOGO_COLUMN 19
-#    define LOGO_ROW 0
-void print_mode_icon(bool invert) {
-    oled_write("                     ", invert);
+#        define LOGO_COLUMN 19
+#        define LOGO_ROW 0
+// the logos itself
+static const char PROGMEM macWinLogo[][2][3] = {{{0x95, 0x96, 0}, {0xb5, 0xb6, 0}}, {{0x97, 0x98, 0}, {0xb7, 0xb8, 0}}};
+
+// for some reason this causes the OLED timeout to break and i'm not sure why
+void gsb_print_mode_icon(void) {
     if (is_mac_mode()) {
         oled_set_cursor(LOGO_COLUMN, LOGO_ROW);
-        snprintf(mode_icon_half, sizeof(mode_icon_half), "%s", logo[0][0]);
-        oled_write(mode_icon_half, invert);
+        oled_write_P(macWinLogo[0][0], false);
 
         oled_set_cursor(LOGO_COLUMN, LOGO_ROW + 1);
-        snprintf(mode_icon_half, sizeof(mode_icon_half), "%s", logo[0][1]);
-        oled_write(mode_icon_half, invert);
+        oled_write_P(macWinLogo[0][1], false);
     } else {
         oled_set_cursor(LOGO_COLUMN, LOGO_ROW);
-        snprintf(mode_icon_half, sizeof(mode_icon_half), "%s", logo[1][0]);
-        oled_write(mode_icon_half, invert);
+        oled_write_P(macWinLogo[1][0], false);
 
         oled_set_cursor(LOGO_COLUMN, LOGO_ROW + 1);
-        snprintf(mode_icon_half, sizeof(mode_icon_half), "%s", logo[1][1]);
-        oled_write(mode_icon_half, invert);
+        oled_write_P(macWinLogo[1][1], false);
     }
 }
+#    endif
 // #endregion OLED Display functions
 
 // #region OLED Display update functions
@@ -335,50 +341,65 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     if (!is_keyboard_master()) return OLED_ROTATION_180; // flips the display 180 degrees if offhand
     return rotation;
 }
+
 bool oled_task_user(void) {
-    static bool invert_text = GSB_DEFAULT_INVERT_OLED;
-
-#    ifdef GSB_SCREENSAVER
-    static uint32_t last_toggle_time = 0;
-
-    // Check if the interval has elapsed
-    if (timer_elapsed(last_toggle_time) > GSB_SCREENSAVER) {
-        invert_text      = !invert_text; // Toggle the invert state
-        last_toggle_time = timer_read(); // Reset the timer
-    }
-#    endif // GSB_SCREENSAVER
-
-    if (is_keyboard_master()) {
+    // if (is_keyboard_master()) {
 #    ifdef GSB_LAYER_LOGO
-        print_layer_state_string(invert_text, false);
-        print_mode_icon(invert_text);
-        oled_write("                       ", invert_text);
-        oled_write("                       ", invert_text);
+    print_layer_state_string(false);
+    gsb_print_mode_icon();
 #    else
-        print_layer_state_string(invert_text, true);
-        oled_write(read_logo(), invert_text);
-#    endif
+    print_layer_state_string(true);
 
-        // oled_write(read_logo(), invert_text);
-        // oled_write_ln(read_keylog(), invert_text);
-        // oled_write_ln(read_keylogs(), invert_text);
-        // oled_write_ln(read_host_led_state(), invert_text);
-        // oled_write_ln(read_timelog(), invert_text);
-    } else {
-        oled_write(read_logo(), invert_text);
-    }
+    // oled_write("Brightness: ", false);
+    // char buffer[4]; // Assuming brightness value will be between 0 and 255
+    // snprintf(buffer, sizeof(buffer), "%d", oled_get_brightness());
+    // oled_write_ln(buffer, false);
+
+    oled_write(read_logo(), false);
+
+#    endif
+    // } else {
+    //     oled_write(read_logo(), false);
+    // }
+
+#    ifdef GSB_FLASH_INVERT_ON_KEYPRESS
+    oled_invert(should_flash_inverted);
+    should_flash_inverted = false;
+#    endif
 
     return false;
 }
 // #endregion OLED Display update functions
+
+// #region OLED shutdown message
+void oled_render_boot(bool bootloader) {
+    oled_clear();
+    for (int i = 0; i < 16; i++) {
+        oled_set_cursor(0, i);
+        if (bootloader) {
+            oled_write_P(PSTR("Awaiting New Firmware "), false);
+        } else {
+            oled_write_P(PSTR("Rebooting "), false);
+        }
+    }
+
+    oled_render_dirty(true);
+}
+
+bool shutdown_user(bool jump_to_bootloader) {
+    oled_render_boot(jump_to_bootloader);
+    return true;
+}
+// #endregion OLED shutdown message
+
 #endif // OLED_ENABLE
 
 #ifdef ENCODER_ENABLE // Rotary Encoder Processing
-bool encoder_update_user(uint8_t index, bool counterclockwise) {
+bool encoder_update_user(uint8_t index, bool clockwise) {
     switch (biton32(layer_state)) {
         case _MVMT_WIN:
         case _MVMT_MAC: {
-            if (counterclockwise) {
+            if (clockwise) {
                 tap_code(KC_WH_D);
             } else {
                 tap_code(KC_WH_U);
@@ -386,28 +407,45 @@ bool encoder_update_user(uint8_t index, bool counterclockwise) {
             break;
         }
         case _NUMP: {
-            if (counterclockwise) {
+            if (clockwise) {
                 tap_code16(LCTL(KC_Y));
             } else {
                 tap_code16(LCTL(KC_Z));
             }
             break;
         }
-#ifdef GSB_HYPER_KVM_ROTARY
+#    ifdef GSB_HYPER_KVM_ROTARY
         case _HYPR_WIN:
         case _HYPR_MAC: {
-          if (counterclockwise) {
-            double_tap_rctl();
-            tap_code(KC_RGHT);
-          } else {
-            double_tap_rctl();
-            tap_code(KC_LEFT);
-          }
-          break;
+            if (clockwise) {
+                SEND_STRING_DELAY(SS_TAP(X_RCTL) SS_TAP(X_RCTL) SS_TAP(X_LGHT), GSB_KVM_DELAY);
+            } else {
+                SEND_STRING_DELAY(SS_TAP(X_RCTL) SS_TAP(X_RCTL) SS_TAP(X_LEFT), GSB_KVM_DELAY);
+            }
+            break;
         }
-#endif
+#    else
+        case _HYPR_WIN:
+        case _HYPR_MAC: {
+            uint8_t current_brightness = oled_get_brightness();
+            if (clockwise) {
+                if (current_brightness < 191) { // 255 - 64 = 191
+                    oled_set_brightness(current_brightness + 64);
+                } else {
+                    oled_set_brightness(255);
+                }
+            } else {
+                if (current_brightness > 64) {
+                    oled_set_brightness(current_brightness - 64);
+                } else {
+                    oled_set_brightness(0);
+                }
+            }
+            break;
+        }
+#    endif
         default: {
-            if (counterclockwise) {
+            if (clockwise) {
                 tap_code(KC_VOLU);
             } else {
                 tap_code(KC_VOLD);
@@ -415,6 +453,6 @@ bool encoder_update_user(uint8_t index, bool counterclockwise) {
             break;
         }
     }
-    return true;
+    return false;
 }
-#endif
+#endif // ENCODER_ENABLE

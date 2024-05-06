@@ -34,26 +34,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MK_W_OFFSET_UNMOD 16
 #define MK_W_INTERVAL_UNMOD 40
 
+#define OS_DETECTION_DEBOUNCE 500
+// #define ENABLE_COMPILE_KEYCODE
+
 // Encoders
 #ifndef ENCODERS_PAD_A
-#define ENCODERS_PAD_A { F5 }
-#define ENCODERS_PAD_B { F4 }
+#    define ENCODERS_PAD_A \
+        { F5 }
+#    define ENCODERS_PAD_B \
+        { F4 }
 #endif
 
 // RGB Lighting Changes
 #define RGBLIGHT_SLEEP
 #define RGBLIGHT_DEFAULT_VAL 15
 
+// OLED
+#define OLED_BRIGHTNESS 0 // start out with lowest brightness
+#define OLED_TIMEOUT 15000
+#define SPLIT_OLED_ENABLE
+#define SPLIT_LAYER_STATE_ENABLE
+#define SPLIT_TRANSPORT_MIRROR
+
 // Greg's custom defines
-// time between keypresses in complex multi-key macros
-#define GSB_WAITTIME 100
-// invert the OLED display by default
-#define GSB_DEFAULT_INVERT_OLED true
-// if defined, will enable the screensaver mode which will invert the OLED every GSB_SCREENSAVER milliseconds
-// #define GSB_SCREENSAVER 30000
+// time between keypresses in KVM related macros (as it misses quicker keypresses)
+#define GSB_KVM_DELAY 100
+// invert the OLED for one frame every time a key is pressed, helps with burnin
+#define GSB_FLASH_INVERT_ON_KEYPRESS
 
 // if defined, the rotary encode will move the left/right screens through the possible options in the KVM
 // #define GSB_HYPER_KVM_ROTARY
 
 // if defined, the mac/windows logo will be displayed for each mode. when undef, the lily58 logo will be below the layer info line
-#define GSB_LAYER_LOGO
+// #define GSB_LAYER_LOGO
