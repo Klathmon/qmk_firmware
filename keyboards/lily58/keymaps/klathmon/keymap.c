@@ -1,11 +1,8 @@
-#include "config.h"
 #include QMK_KEYBOARD_H
 
 #ifdef CONSOLE_ENABLE
 #    include "print.h"
 #endif
-
-#define EEPROM_USER_OFFSET (uint8_t *)EECONFIG_SIZE
 
 // #region Layers and Custom Keycodes
 enum my_keycodes {
@@ -41,6 +38,9 @@ enum my_layers {
 #define M_LALTE LALT_T(KC_ESC)
 // switch win/mac mode
 #define M_TGLM TG(_MAIN_MAC)
+// Macos forward and back
+#define M_BAKM LOPT(KC_LEFT)
+#define M_FWDM LOPT(KC_RGHT)
 // movement layer
 #define M_MVMTW MO(_MVMT_WIN)
 #define M_MVMTM MO(_MVMT_MAC)
@@ -58,7 +58,7 @@ enum my_layers {
 #define M_HOMEM LGUI(KC_LEFT)
 // end
 #define M_ENDW KC_END
-#define M_ENDM LGUI(KC_RIGHT)
+#define M_ENDM LGUI(KC_RGHT)
 // lock
 #define M_LOCKW LGUI(KC_L)
 #define M_LOCKM LGUI(LCTL(KC_Q))
@@ -135,7 +135,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [_HYPR_MAC] = LAYOUT(
         KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QK_MAKE, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
         KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
-        KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
+        KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, M_BAKM, M_FWDM,
         M_SSHTM, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, M_SLEPM, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KQ_FLSH, KC_TRNS, KC_TRNS
     )

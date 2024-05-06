@@ -18,3 +18,12 @@
 //#define NO_ACTION_LAYER
 //#define NO_ACTION_TAPPING
 //#define NO_ACTION_ONESHOT
+
+#define TAPPING_FORCE_HOLD
+#define TAPPING_TERM 100
+
+#define OS_DETECTION_DEBOUNCE 500
+
+// Greg's custom defines
+// time between keypresses in KVM related macros (as it misses quicker keypresses)
+#define GSB_KVM_DELAY 100

@@ -14,5 +14,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define GREEN_LED LED1
+#define RED_LED LED2
+
 #undef USB_MAX_POWER_CONSUMPTION
-#define USB_MAX_POWER_CONSUMPTION 250
+#define USB_MAX_POWER_CONSUMPTION 350
+
+#define TAPPING_FORCE_HOLD
+#define TAPPING_TERM 100
+
+#define OS_DETECTION_DEBOUNCE 500
+
+// Greg's custom defines
+// time between keypresses in KVM related macros (as it misses quicker keypresses)
+#define GSB_KVM_DELAY 100

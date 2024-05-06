@@ -50,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGBLIGHT_DEFAULT_VAL 15
 
 // OLED
-#define OLED_BRIGHTNESS 0 // start out with lowest brightness
+#define OLED_BRIGHTNESS 64 // start out with lowest brightness
 #define OLED_TIMEOUT 15000
 #define SPLIT_OLED_ENABLE
 #define SPLIT_LAYER_STATE_ENABLE
