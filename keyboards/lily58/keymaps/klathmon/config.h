@@ -26,6 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define MASTER_RIGHT
 // #define EE_HANDS
 
+// only using 8 layers so we can fit it in 8 bits
+#define LAYER_STATE_8BIT
+
 #define TAPPING_FORCE_HOLD
 #define TAPPING_TERM 100
 #define USB_POLLING_INTERVAL_MS 5
@@ -48,6 +51,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // RGB Lighting Changes
 #define RGBLIGHT_SLEEP
 #define RGBLIGHT_DEFAULT_VAL 15
+
+// Dynamic Macros
+#define DYNAMIC_MACRO_NO_NESTING
+#define DYNAMIC_MACRO_SIZE 128
 
 // OLED
 #define OLED_BRIGHTNESS 64 // start out with lowest brightness

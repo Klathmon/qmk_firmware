@@ -127,15 +127,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [_HYPR_WIN] = LAYOUT(
         KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QK_MAKE, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
-        KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
-        KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
+        DM_REC1, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
+        DM_PLY1, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, KC_WBAK, KC_WFWD,
         M_SSHTW, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, M_SLEPW, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KQ_FLSH, KC_TRNS, KC_TRNS
     ),
     [_HYPR_MAC] = LAYOUT(
         KC_CAPS, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_TRNS,                   QK_MAKE, KC_TRNS, KC_TRNS, K_S_KBM, K_WIN,   K_MAC,
-        KC_TRNS, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
-        KC_TRNS, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, M_BAKM, M_FWDM,
+        DM_REC2, KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_TRNS,                   KC_TRNS, KC_PSCR, KC_BRMD, KC_BRMU, K_MM_SW, K_MW_SM,
+        DM_PLY2, KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_TRNS,                   KC_TRNS, KC_VOLD, KC_MUTE, KC_VOLU, M_BAKM, M_FWDM,
         M_SSHTM, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, M_SLEPM, KC_TRNS, KC_MPRV, KC_MPLY, KC_MNXT, KC_TRNS, M_TGLM,
                           KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,                   QK_BOOT, KQ_FLSH, KC_TRNS, KC_TRNS
     )
@@ -185,24 +185,33 @@ void kbm_swap_kbm(void) {
 
 #ifdef OLED_ENABLE // SSD1306 OLED header stuff
 const char *read_logo(void);
+#    ifdef DYNAMIC_MACRO_ENABLE
+bool        is_recording_macro = false;
+char        keylogs_str[21];
+int         keylogs_str_idx;
+void        set_keylog(uint16_t keycode, keyrecord_t *record);
+const char *read_keylogs(void);
+#    endif // DYNAMIC_MACRO_ENABLE
 
 #    ifdef GSB_FLASH_INVERT_ON_KEYPRESS
 static bool should_flash_inverted = false;
-#    endif
-#endif // OLED_ENABLE
-
-bool should_process_keypress(void) {
-    return true;
-}
-
+#    endif // GSB_FLASH_INVERT_ON_KEYPRESS
+#endif     // OLED_ENABLE
 // Custom Keycodes Processing
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #ifdef OLED_ENABLE
-#    ifdef GSB_FLASH_INVERT_ON_KEYPRESS
+
     if (record->event.pressed) {
+#    ifdef DYNAMIC_MACRO_ENABLE
+        if (is_recording_macro) {
+            set_keylog(keycode, record);
+        }
+#    endif // DYNAMIC_MACRO_ENABLE
+
+#    ifdef GSB_FLASH_INVERT_ON_KEYPRESS
         should_flash_inverted = true;
-    }
 #    endif
+    }
 #endif
 
     switch (keycode) {
@@ -274,40 +283,46 @@ bool process_detected_host_os_user(os_variant_t detected_os) {
 }
 
 #ifdef OLED_ENABLE // SSD1306 OLED update loop, make sure to enable OLED_ENABLE=yes in rules.mk
-// #region OLED Display functions
-char layer_state_str[24];
-char os_str[4];
-void print_layer_state_string(bool write_os) {
-    if (is_mac_mode()) {
-        snprintf(os_str, sizeof(os_str), "Mac");
-    } else {
-        snprintf(os_str, sizeof(os_str), "Win");
-    }
 
+// used to get the fully mirrored OLED working with some split configuration stuff
+bool should_process_keypress(void) {
+    return true;
+}
+
+// #region OLED Custom functions
+void gsb_print_layer_state_string(bool write_os) {
+    oled_set_cursor(0, 0);
     switch (biton32(layer_state)) {
         case _MAIN_WIN:
         case _MAIN_MAC:
-            snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Main       %s", write_os ? os_str : "   ");
+            oled_write_ln_P(PSTR("Layer: Main"), false);
             break;
         case _MVMT_WIN:
         case _MVMT_MAC:
-            snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Movement   %s", write_os ? os_str : "   ");
+            oled_write_ln_P(PSTR("Layer: Movement"), false);
             break;
         case _HYPR_WIN:
         case _HYPR_MAC:
-            snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Hyper      %s", write_os ? os_str : "   ");
+            oled_write_ln_P(PSTR("Layer: Hyper"), false);
             break;
         case _NUMR:
-            snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Number Row %s", write_os ? os_str : "   ");
+            oled_write_ln_P(PSTR("Layer: Number Row"), false);
             break;
         case _NUMP:
-            snprintf(layer_state_str, sizeof(layer_state_str), "Layer: Numpad     %s", write_os ? os_str : "   ");
+            oled_write_ln_P(PSTR("Layer: Numpad"), false);
             break;
         default:
-            snprintf(layer_state_str, sizeof(layer_state_str), "Layer: %d", biton32(layer_state));
+            oled_write_ln_P(PSTR("Layer: ???"), false);
     }
 
-    oled_write(layer_state_str, false);
+    if (write_os) {
+        oled_set_cursor(oled_max_chars() - 3, 0);
+        if (is_mac_mode()) {
+            oled_write_ln_P(PSTR("Mac"), false);
+        } else {
+            oled_write_ln_P(PSTR("Win"), false);
+        }
+    }
 }
 
 #    ifdef GSB_LAYER_LOGO
@@ -333,8 +348,34 @@ void gsb_print_mode_icon(void) {
         oled_write_P(macWinLogo[1][1], false);
     }
 }
-#    endif
+#    endif // GSB_LAYER_LOGO
+
+#    ifdef DYNAMIC_MACRO_ENABLE
+void gsb_print_recording_macro(void) {
+    oled_clear();
+    oled_write_ln_P(PSTR("Recording Macro:"), false);
+    oled_write(read_keylogs(), false);
+    oled_invert(false);
+}
+#    endif // DYNAMIC_MACRO_ENABLE
+
 // #endregion OLED Display functions
+
+// #region Dynamic Macro user hooks
+#    ifdef DYNAMIC_MACRO_ENABLE
+void dynamic_macro_record_start_user(int8_t direction) {
+    for (int i = 0; i < sizeof(keylogs_str) - 1; i++) {
+        keylogs_str[i] = ' ';
+    }
+    keylogs_str_idx = 0;
+
+    is_recording_macro = true;
+}
+void dynamic_macro_record_end_user(int8_t direction) {
+    is_recording_macro = false;
+}
+#    endif // DYNAMIC_MACRO_ENABLE
+// #endregion Dynamic Macro user hooks
 
 // #region OLED Display update functions
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
@@ -343,24 +384,28 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 }
 
 bool oled_task_user(void) {
-    // if (is_keyboard_master()) {
+#    ifdef DYNAMIC_MACRO_ENABLE
+    if (is_recording_macro) {
+        gsb_print_recording_macro();
+        return false;
+    }
+#    endif // DYNAMIC_MACRO_ENABLE
+
 #    ifdef GSB_LAYER_LOGO
-    print_layer_state_string(false);
+    gsb_print_layer_state_string(false);
     gsb_print_mode_icon();
 #    else
-    print_layer_state_string(true);
+    gsb_print_layer_state_string(true);
 
     // oled_write("Brightness: ", false);
     // char buffer[4]; // Assuming brightness value will be between 0 and 255
     // snprintf(buffer, sizeof(buffer), "%d", oled_get_brightness());
     // oled_write_ln(buffer, false);
 
+    oled_set_cursor(0, 1); // move to the second line
     oled_write(read_logo(), false);
 
 #    endif
-    // } else {
-    //     oled_write(read_logo(), false);
-    // }
 
 #    ifdef GSB_FLASH_INVERT_ON_KEYPRESS
     oled_invert(should_flash_inverted);
