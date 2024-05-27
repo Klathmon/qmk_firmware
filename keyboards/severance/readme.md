@@ -1,6 +1,6 @@
 # severance
 
-_A short description of the keyboard/project_
+The keyboard from severance
 
 -   Keyboard Maintainer: [Gregory Benner](https://github.com/Klathmon)
 -   Hardware Supported: _The PCBs, controllers supported_
