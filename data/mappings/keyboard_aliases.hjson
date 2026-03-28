@@ -257,6 +257,9 @@
     "handwired/jscotto/scottostarter": {
         "target": "handwired/scottokeebs/scottostarter"
     },
+    "helix": {
+        "target": "helix/rev2"
+    },
     "helix/pico/sc/back": {
         "target": "helix/pico/sc"
     },
